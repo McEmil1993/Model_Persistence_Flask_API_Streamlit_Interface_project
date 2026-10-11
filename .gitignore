@@ -1,0 +1,13 @@
+# Python virtual environments contain installed packages and should not be committed.
+.venv/
+venv/
+
+# Python creates these cache files automatically.
+__pycache__/
+*.pyc
+
+# Streamlit creates local settings and cache files here.
+.streamlit/
+
+# PowerShell generated this local module-analysis cache folder.
+Microsoft/
