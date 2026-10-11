@@ -1,16 +1,3 @@
-"""Exercise 1 — Model Persistence.
-
-Generates a synthetic student dataset, trains a logistic regression model on
-daily study hours, and saves it with joblib so it can be reloaded without
-retraining.
-
-Run:
-    python train_model.py
-
-Outputs:
-    student_data.csv          — the generated dataset
-    student_pass_model.joblib — the trained model
-"""
 
 import os
 

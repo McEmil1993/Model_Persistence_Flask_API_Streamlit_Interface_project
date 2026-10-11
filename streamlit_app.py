@@ -1,11 +1,3 @@
-"""Exercise 3 — Streamlit Interface.
-
-A small web form around the trained model: enter a student name and study
-hours, get a prediction and an explanation of how it was produced.
-
-Run:
-    streamlit run streamlit_app.py
-"""
 
 import os
 

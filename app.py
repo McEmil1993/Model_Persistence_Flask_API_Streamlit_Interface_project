@@ -1,16 +1,3 @@
-"""Exercise 2 — Flask API.
-
-Serves the model trained by train_model.py over HTTP, accepting two inputs:
-study_hours (hours studied per day) and attendance_percentage.
-
-Run:
-    python app.py
-
-Then test it:
-    curl.exe -X POST http://127.0.0.1:5000/predict \
-      -H "Content-Type: application/json" \
-      -d "{\"study_hours\": 7, \"attendance_percentage\": 85}"
-"""
 
 import os
 
