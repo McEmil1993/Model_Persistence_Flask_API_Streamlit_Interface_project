@@ -1,6 +1,6 @@
 # IT Elective 3 (AI: Machine Learning) – Final Exercises
 
-**Student:** Kim C. Ferrer
+**Student:** Myla D. Vallentos
 **Course:** IT Elective 3 – Artificial Intelligence: Machine Learning
 **Topic:** Model Persistence and Basic Deployment with Flask and Streamlit
 
@@ -125,5 +125,5 @@ The app opens in your browser at `http://localhost:8501`. Enter a student name a
 
 ## Author
 
-**Kim C. Ferrer**
+**Myla D. Vallentos**
 IT Elective 3 – Final Exercises
