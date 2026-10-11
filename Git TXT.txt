@@ -1,0 +1,21 @@
+git init
+git add .
+===IF Author identity unknown===
+git config --global user.email "markcajes40@gmail.com"
+git config --global user.name "Mark Emil"
+
+git commit -m "Mark Emil Dacoylo"
+git branch -M mark_emil_dacoylo
+git remote add origin https://github.com/McEmil1993/Model_Persistence_Flask_API_Streamlit_Interface_project.git
+git push -u origin mark_emil_dacoylo
+
+
+
+++++++ NOTE ++++++
+Git ignore 
+.venv/
+venv/
+__pycache__/
+*.pyc
+.streamlit/
++++++++++++++++++
