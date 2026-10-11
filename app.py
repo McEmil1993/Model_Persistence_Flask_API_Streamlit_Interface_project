@@ -1,0 +1,51 @@
+
+from flask import Flask, request, jsonify
+import joblib
+
+app = Flask(__name__)
+
+# Load the saved model
+model = joblib.load("student_pass_model.joblib")
+
+
+@app.route("/predict", methods=["POST"])
+def predict():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "JSON data is required"}), 400
+
+    try:
+        study_hours = float(data["study_hours"])
+        attendance_percentage = float(data["attendance_percentage"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({
+            "error": "Please provide valid study_hours and attendance_percentage"
+        }), 400
+
+    # Validate attendance percentage
+    if not 0 <= attendance_percentage <= 100:
+        return jsonify({
+            "error": "Attendance percentage must be between 0 and 100"
+        }), 400
+
+    # Validate study hours
+    if study_hours < 0:
+        return jsonify({
+            "error": "Study hours cannot be negative"
+        }), 400
+
+    # The current model uses study hours only
+    prediction = model.predict([[study_hours]])[0]
+
+    result = "Pass" if prediction == 1 else "Fail"
+
+    return jsonify({
+        "study_hours": study_hours,
+        "attendance_percentage": attendance_percentage,
+        "prediction": result
+    })
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
