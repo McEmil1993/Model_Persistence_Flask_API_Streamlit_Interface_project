@@ -1,0 +1,8 @@
+scikit-learn
+joblib
+Flask
+streamlit
+matplotlib
+
+
+#Crompido_GM name sa branch
