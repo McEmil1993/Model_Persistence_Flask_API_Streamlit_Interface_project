@@ -1,10 +1,6 @@
 ﻿from flask import Flask, request, jsonify
 import joblib
 import numpy as np
-import logging
-
-# Silence werkzeug dev server logs
-logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
 model = joblib.load("student_pass_model.joblib")
@@ -58,6 +54,4 @@ def predict():
 
 
 if __name__ == "__main__":
-    # ✅ FIX: debug=False at use_reloader=False
-    # Ito ang pumipigil sa ConnectionResetError!
     app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
