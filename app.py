@@ -20,7 +20,7 @@ def predict():
     if study_hours < 0:
         return jsonify(error="study_hours cannot be negative."), 400
     if not 0 <= attendance <= 100:
-        return jsonify(error="attendance_percentage must be between 0 and 100."), 400
+        return jsonify(error="attendance_percentage must be bet`ween 0 and 100."), 400
 
     X = pd.DataFrame([[study_hours, attendance]], columns=FEATURES)
     pred = int(model.predict(X)[0])
