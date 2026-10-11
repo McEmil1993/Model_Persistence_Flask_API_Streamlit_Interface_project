@@ -1,6 +1,7 @@
 
 import streamlit as st
 import joblib
+import pandas as pd
 
 # Load the saved model
 model = joblib.load("student_pass_model.joblib")
@@ -26,21 +27,38 @@ attendance_percentage = st.number_input(
     value=85.0,
     step=1.0
 )
+
 # Make a prediction when the button is clicked
 if st.button("Predict"):
     if not student_name.strip():
         st.warning("Please enter the student's name.")
     else:
+        # Predict using study hours only
         prediction = model.predict([[study_hours]])[0]
-
         result = "Pass" if prediction == 1 else "Fail"
 
+        # Display prediction result
         st.subheader("Prediction Result")
         st.write(f"Student name: {student_name}")
         st.write(f"Study hours: {study_hours}")
+        st.write(f"Attendance: {attendance_percentage}%")
         st.write(f"Predicted result: {result}")
 
         st.info(
             "This prediction is based on study hours "
-            "using a previously trained machine-learning model."
+            "using a previously trained machine-learning model. "
+            "Attendance is displayed for reference but does not "
+            "influence the prediction."
+        )
+
+        # Bonus: Student information bar chart
+        st.subheader("Bonus: Student Study Summary")
+
+        chart_data = pd.DataFrame({
+            "Category": ["Study Hours", "Attendance Percentage"],
+            "Value": [study_hours, attendance_percentage]
+        })
+
+        st.bar_chart(
+            chart_data.set_index("Category")
         )
