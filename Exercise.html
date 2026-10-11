@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Pass Prediction Exercise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 850px;
+            margin: 35px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #222;
+        }
+        h1, h2 { color: #17365d; }
+        section {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 18px;
+            margin: 18px 0;
+        }
+        code {
+            background: #eee;
+            padding: 3px 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Student Pass Prediction</h1>
+    <p><strong>Subject:</strong> IT Elective 3 - AI: Machine Learning</p>
+    <p><strong>Lesson:</strong> Model Persistence and Basic Deployment</p>
+
+    <section>
+        <h2>Exercise 1: Model Persistence</h2>
+        <ol>
+            <li>Train a machine learning model using train_model.py.</li>
+            <li>Save the model using joblib.</li>
+            <li>Load the saved model without retraining it.</li>
+            <li>Test predictions for 2, 5, and 8 study hours.</li>
+            <li>Explain why saving a trained model is useful.</li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>Exercise 2: Flask API</h2>
+        <ol>
+            <li>Run the Flask application.</li>
+            <li>Send a POST request to /predict.</li>
+            <li>Provide study_hours and attendance_percentage as JSON.</li>
+            <li>Check the returned prediction and validation errors.</li>
+            <li>Explain what the API returns.</li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>Exercise 3: Streamlit Interface</h2>
+        <ol>
+            <li>Run the Streamlit application.</li>
+            <li>Enter a student's name.</li>
+            <li>Enter the number of study hours.</li>
+            <li>Click Predict Result.</li>
+            <li>Record the result and explain the output.</li>
+        </ol>
+    </section>
+
+    <p><strong>Reminder:</strong> This project uses a small sample dataset for learning.
+    Attendance is validated by the API but is not used by the model to make predictions.</p>
+</body>
+</html>
