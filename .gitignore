@@ -1,4 +1,3 @@
-Git ignore
 .venv/
 venv/
 __pycache__/

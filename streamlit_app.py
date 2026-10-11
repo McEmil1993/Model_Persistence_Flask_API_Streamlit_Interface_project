@@ -53,3 +53,11 @@ if submitted:
         ax.set_title(f"Study hours and predicted class for {student_name.strip()}")
         st.pyplot(fig)
         plt.close(fig)
+
+attendance_percentage = st.number_input(
+    "Attendance percentage (%)",
+    min_value=0.0,
+    max_value=100.0,
+    value=90.0,
+    step=1.0
+)
