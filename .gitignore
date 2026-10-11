@@ -1,0 +1,12 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Generated artifacts (recreate by running: python train_model.py)
+student_data.csv
+student_pass_model.joblib
