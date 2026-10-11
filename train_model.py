@@ -30,4 +30,4 @@ for hours in [1, 4, 8]:
 
 # Why no retraining? The learned parameters (coefficients and intercept)
 # are stored inside the .joblib file. Loading restores the fitted model,
-# so predict() only applies those saved numbers to the new input.
+# so predict() only applies those saved numbers to the new_input.
