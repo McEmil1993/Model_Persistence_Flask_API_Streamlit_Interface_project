@@ -1,0 +1,8 @@
+Flask
+joblib
+numpy
+scikit-learn
+streamlit
+requests
+pandas
+matplotlib
