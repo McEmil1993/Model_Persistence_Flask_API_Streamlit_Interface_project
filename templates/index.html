@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111d38">
+<title>Student Pass Predictor | Academic Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#111d38;--blue:#4776e6;--blue-l:#edf3ff;--bg:#f5f7fb;--text:#1c2940;--muted:#748097;--line:#e4e9f2;
+--green:#138765;--green-bg:#e7f7f0;--red:#c7475d;--red-bg:#fff0f2;--display:"Manrope",system-ui,sans-serif;--body:"DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.5}
+button,input{font:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid #9ab6ff;outline-offset:3px}
+h1,h2,h3,p{margin-top:0}
+.topbar{background:var(--navy);color:#fff}
+.topbar-inner{max-width:1180px;margin:auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;font:800 16px var(--display);letter-spacing:-.3px}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#ffd47a,#e9a83f);color:#17233e;font-size:21px}
+.brand small{display:block;font:500 11px var(--body);letter-spacing:1.4px;text-transform:uppercase;color:#aab8d4}
+.status{display:inline-flex;align-items:center;gap:8px;border:1px solid #354363;background:#1a2949;border-radius:99px;padding:8px 12px;color:#d9e4f8;font-size:12px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#8a95a8}
+.status.on .status-dot{background:#52d6a2;box-shadow:0 0 0 4px #52d6a21c}
+.status.off .status-dot{background:#ff7a90;box-shadow:0 0 0 4px #ff7a901c}
+main{max-width:1180px;margin:0 auto;padding:34px 28px 26px}
+.page-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:24px}
+.eyebrow{color:var(--blue);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.8px;margin:0 0 7px}
+h1{font:800 clamp(27px,3vw,36px)/1.15 var(--display);letter-spacing:-1.2px;margin-bottom:9px;color:var(--navy)}
+.page-subtitle{color:var(--muted);margin:0;max-width:620px;font-size:15px}
+.model-note{font-size:12px;color:var(--muted);white-space:nowrap}
+.workspace{display:grid;grid-template-columns:minmax(300px,.92fr) minmax(0,1.25fr);gap:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 55px rgba(24,42,77,.08);overflow:hidden}
+.form-card,.result-card{padding:27px 28px}
+.card-heading{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:13px;background:var(--blue-l);color:var(--blue);font-size:20px}
+.icon.green{background:#e9f7f1;color:var(--green)}
+.card-heading h2,.result-top h2{font:800 17px var(--display);margin:0 0 2px}
+.card-heading p,.result-top p{font-size:12px;color:var(--muted);margin:0}
+.field{margin-bottom:23px}
+.field-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+label{font-size:13px;font-weight:700;color:#35435d}
+.pill{background:var(--blue-l);color:#315ec2;border-radius:8px;padding:4px 9px;font:800 13px var(--display);min-width:58px;text-align:center}
+.text-input{width:100%;padding:13px 14px;border:1px solid #dce3ef;border-radius:11px;color:var(--text)}
+.text-input:focus{outline:none;border-color:#7596ed;box-shadow:0 0 0 4px #4776e617}
+input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer;margin:5px 0 0}
+.range-ends{display:flex;justify-content:space-between;color:#929db0;font-size:11px}
+.hint{font-size:11px;color:#929db0;margin:6px 0 0}
+.primary-btn{width:100%;border:0;border-radius:12px;padding:14px 18px;background:var(--blue);color:#fff;font-weight:800;box-shadow:0 8px 18px #4776e62b;transition:transform .15s,background .15s}
+.primary-btn:hover{background:#3867d4;transform:translateY(-1px)}
+.primary-btn:disabled{opacity:.65;cursor:wait;transform:none}
+.msg{min-height:20px;margin:10px 0 0;color:var(--red);font-size:12px}
+.msg.info{color:var(--muted)}
+.result-card{display:flex;flex-direction:column;min-height:440px}
+.result-top{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.badge{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;border-radius:7px;background:#f0f3f9;color:#77839a;padding:7px 9px;white-space:nowrap}
+.gauge-wrap{margin:14px auto 0;width:min(100%,350px)}
+.gauge{width:100%;max-height:190px;overflow:visible}
+.gauge .track{stroke:#edf0f6}
+.gauge .arc{stroke:#cbd3e1;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1),stroke .25s}
+.gauge-num{font:800 40px var(--display);fill:var(--navy);letter-spacing:-1.5px}
+.gauge-cap{font:600 10px var(--body);fill:var(--muted)}
+.gauge-tick{font:700 9px var(--body);fill:#8a95a8}
+.gauge-line{stroke:var(--navy);stroke-width:2}
+.verdict{text-align:center;font:800 23px var(--display);letter-spacing:-.5px;margin:2px 0 6px;min-height:30px;color:var(--navy)}
+.verdict.pass{color:var(--green)}.verdict.fail{color:var(--red)}
+.explain{text-align:center;color:var(--muted);font-size:13px;max-width:440px;margin:0 auto 19px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.stat{border:1px solid var(--line);background:#fbfcfe;border-radius:12px;padding:12px 14px}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:#8a95a8;margin-bottom:4px}
+.stat-value{font:800 18px var(--display);color:var(--navy)}
+.stat-value small{font:600 11px var(--body);color:var(--muted)}
+.history{margin-top:auto;border-top:1px solid var(--line);padding-top:17px}
+.history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.history h3{font:800 12px var(--display);text-transform:uppercase;letter-spacing:1px;margin:0}
+.count{font-size:10px;color:var(--muted);background:#f0f3f9;border-radius:99px;padding:4px 8px}
+.history ul{list-style:none;margin:0;padding:0}
+.history li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid #f0f2f7;font-size:12px}
+.meta{display:block;color:var(--muted);font-size:11px}
+.chip{display:inline-flex;font-size:10px;font-weight:800;padding:5px 9px;border-radius:99px;white-space:nowrap}
+.chip.pass{background:var(--green-bg);color:var(--green)}
+.chip.fail{background:var(--red-bg);color:var(--red)}
+.chip.neutral{background:#f0f3f9;color:#64718a}
+.empty{color:var(--muted);font-size:12px;margin:0;padding:9px 0}
+.batch-card{margin-top:22px;padding:25px 28px}
+.batch-head{display:flex;justify-content:space-between;align-items:start;gap:20px;margin-bottom:17px}
+.batch-head h2{font:800 18px var(--display);margin:0 0 5px}
+.batch-head p:last-child{color:var(--muted);font-size:12px;margin:0;max-width:700px}
+.actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.secondary-btn{border:1px solid #dce3ef;border-radius:10px;background:#fff;color:#34425b;padding:10px 14px;font-size:12px;font-weight:800}
+.secondary-btn:hover{background:#f7f9fd;border-color:#b9c7df}
+.drop{display:flex;align-items:center;gap:12px;flex:1;min-width:260px;border:2px dashed #cbd5e4;background:#fafbfe;border-radius:12px;padding:14px 16px;cursor:pointer;color:var(--muted);font-size:13px;transition:border .15s,background .15s}
+.drop strong{color:var(--blue)}
+.drop:hover,.drop.over,.drop:focus-within{border-color:var(--blue);background:var(--blue-l)}
+.drop #fname{margin-left:auto;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45%}
+.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.sumrow{display:flex;flex-wrap:wrap;gap:8px;margin:17px 0 12px}
+.sumrow .chip{font-size:11px}
+.tablewrap{overflow:auto;max-height:370px;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:12px 14px;text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:#f7f9fc;color:#65718a;font-size:10px;text-transform:uppercase;letter-spacing:.7px}
+tr+tr td{border-top:1px solid #edf0f6}
+footer{max-width:1180px;margin:0 auto;padding:0 28px 25px;color:#8994a7;font-size:11px;text-align:center}
+@media(max-width:800px){main{padding:26px 16px}.topbar-inner{padding:14px 16px}.workspace{grid-template-columns:1fr}
+.page-heading{align-items:start;flex-direction:column;gap:12px}.model-note{white-space:normal}
+.form-card,.result-card,.batch-card{padding:23px 18px}}
+@media(max-width:460px){.status{font-size:10px}.drop{min-width:0}.secondary-btn{width:100%}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.chart-card{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:18px 18px 12px}
+.chart-card h3{font:800 14px var(--display);margin:0 0 2px}
+.chart-sub{font-size:12px;color:var(--muted);margin:0 0 8px}
+#chart svg{width:100%;height:auto;display:block}
+#chart text{font:600 10px var(--body);fill:#748097}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.dot.pass{background:var(--green)}.dot.fail{background:var(--red)}
+.swatch{display:inline-block;width:18px;height:3px;border-radius:2px;background:#4776e6;margin-right:6px;vertical-align:middle}
+.mini-chart{margin:-6px 0 18px}
+#chart1 svg{width:100%;height:auto;display:block}
+#chart1 text{font:600 10px var(--body);fill:#748097}
+.history{margin-top:22px;padding-top:18px}
+.rcard{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-left-width:4px;border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fbfcfe;box-shadow:0 2px 8px rgba(24,42,77,.04)}
+.rcard.pass{border-left-color:var(--green)}.rcard.fail{border-left-color:var(--red)}
+.av{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:50%;font:800 13px var(--display)}
+.av.pass{background:var(--green-bg);color:var(--green)}.av.fail{background:var(--red-bg);color:var(--red)}
+.rinfo{flex:1;min-width:0}
+.rinfo b{display:block;font:700 14px var(--body);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rinfo span{display:block;font-size:11px;color:var(--muted)}
+.mbar{height:5px;background:#e9edf5;border-radius:99px;margin-top:7px;overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:99px}
+.rcard.pass .mbar i{background:var(--green)}.rcard.fail .mbar i{background:var(--red)}
+.rres{text-align:right}.rres strong{display:block;font:800 16px var(--display);color:var(--navy);margin-top:5px}
+.rempty{border:1.5px dashed #cbd5e4;border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:12px;background:#fafbfe}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><span>Student Pass Predictor<small>Academic insights</small></span></div>
+  <div class="status" id="status"><span class="status-dot"></span><span id="statusText">Checking service...</span></div>
+</div></header>
+
+<main>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Student analytics / Overview</p>
+      <h1>Understand the likelihood of success.</h1>
+      <p class="page-subtitle">Enter a student's study habits and attendance to generate a model-based estimate, or score a whole class from a CSV file.</p>
+    </div>
+    <div class="model-note">⌁ Logistic regression model</div>
+  </div>
+
+  <div class="workspace">
+    <section class="card form-card" aria-labelledby="formTitle">
+      <div class="card-heading"><span class="icon" aria-hidden="true">＋</span>
+        <div><h2 id="formTitle">Student details</h2><p>Enter the information below to run an estimate.</p></div></div>
+      <form id="form" novalidate>
+        <div class="field"><div class="field-head"><label for="name">Student name</label></div>
+          <input class="text-input" id="name" type="text" autocomplete="off" placeholder="e.g. Alex"></div>
+        <div class="field">
+          <div class="field-head"><label for="hours">Study hours per day</label><span class="pill"><output id="hoursOut">5</output> h</span></div>
+          <input id="hours" type="range" min="0" max="24" step="0.5" value="5">
+          <div class="range-ends"><span>0 hours</span><span>24 hours</span></div>
+          <p class="hint">Average time spent studying each day.</p></div>
+        <div class="field">
+          <div class="field-head"><label for="attendance">Attendance percentage</label><span class="pill"><output id="attOut">85</output>%</span></div>
+          <input id="attendance" type="range" min="0" max="100" step="1" value="85">
+          <div class="range-ends"><span>0%</span><span>100%</span></div>
+          <p class="hint">Percentage of classes attended.</p></div>
+        <button class="primary-btn" id="btn" type="submit">Generate prediction &nbsp;→</button>
+        <p class="msg" id="err" role="alert"></p>
+      </form>
+      <div class="history">
+        <div class="history-head"><h3>Recent students</h3><span class="count" id="historyCount">0 of 5</span></div>
+        <div id="list"></div>
+        <div class="rempty" id="empty">No students yet. Each prediction you run appears here as a card.</div>
+      </div>
+    </section>
+
+    <section class="card result-card" aria-live="polite" aria-labelledby="resultTitle">
+      <div class="result-top">
+        <div><h2 id="resultTitle">Prediction overview</h2><p>Your model result will appear here.</p></div>
+        <span class="badge" id="resultBadge">Awaiting input</span>
+      </div>
+      <div class="gauge-wrap">
+        <svg class="gauge" viewBox="0 0 220 135" role="img" aria-label="Pass probability gauge">
+          <path class="track" d="M 20 115 A 90 90 0 0 1 200 115" fill="none" stroke-width="16" stroke-linecap="round"/>
+          <path id="arc" class="arc" d="M 20 115 A 90 90 0 0 1 200 115" fill="none" stroke-width="16" stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="282.74"/>
+          <line class="gauge-line" x1="110" y1="15" x2="110" y2="35"/>
+          <text class="gauge-tick" x="110" y="9" text-anchor="middle">PASS LINE 50%</text>
+          <text class="gauge-tick" x="20" y="130" text-anchor="middle">0%</text>
+          <text class="gauge-tick" x="200" y="130" text-anchor="middle">100%</text>
+          <text id="gaugeNum" class="gauge-num" x="110" y="92" text-anchor="middle">--</text>
+          <text class="gauge-cap" x="110" y="112" text-anchor="middle">ESTIMATED PASS CHANCE</text>
+        </svg>
+      </div>
+      <p class="verdict" id="verdict">Ready when you are</p>
+      <p class="explain" id="explain">Add the student's details and select "Generate prediction" to see the result and how it was calculated.</p>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Study time</div><div class="stat-value" id="statHours">— <small>hours/day</small></div></div>
+        <div class="stat"><div class="stat-label">Attendance</div><div class="stat-value" id="statAttendance">— <small>percent</small></div></div>
+      </div>
+      <div class="mini-chart"><div id="chart1"></div><p class="hint" id="chart1Note"></p></div>
+    </section>
+  </div>
+
+  <section class="card batch-card" aria-labelledby="batchTitle">
+    <div class="batch-head">
+      <div>
+        <p class="eyebrow">Bulk assessment</p>
+        <h2 id="batchTitle">Score a whole class</h2>
+        <p>Choose or drop a CSV with <strong>name</strong>, <strong>study_hours</strong> and <strong>attendance_percentage</strong>. Results appear as soon as the file is selected (up to 1,000 students).</p>
+      </div>
+      <span class="icon green" aria-hidden="true">▤</span>
+    </div>
+    <div class="actions">
+      <button type="button" id="tpl" class="secondary-btn">↓ Download CSV template</button>
+      <label class="drop" id="drop" for="csv">
+        <span>📄 <strong>Choose a CSV file</strong> or drag it here</span>
+        <span id="fname"></span>
+        <input class="sr" type="file" id="csv" accept=".csv,text/csv">
+      </label>
+    </div>
+    <p class="msg" id="batchMsg" role="alert"></p>
+    <div id="batchOut" hidden>
+      <div class="sumrow" id="sumrow"></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Name</th><th>Study hours</th><th>Attendance</th><th>Result</th><th>Pass chance</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+      <div class="chart-card">
+        <h3>Study hours vs. predicted result</h3>
+        <p class="chart-sub">The blue line is the model's pass chance at your class's average attendance (<span id="curveAtt">–</span>%). Each dot is a student, sitting above or below the line according to their own attendance.</p>
+        <div id="chart"></div>
+        <div class="legend"><span><i class="swatch"></i>Model curve</span><span><i class="dot pass"></i>Predicted to pass</span><span><i class="dot fail"></i>At risk</span></div>
+      </div>
+      <div class="actions" style="margin-top:14px"><button type="button" id="dl" class="secondary-btn">↓ Download results (CSV)</button></div>
+    </div>
+  </section>
+</main>
+
+<footer><strong>Note:</strong> Predictions are estimates generated by a logistic regression model trained on historical student data. They are for guidance only and should not be used as the sole basis for academic decisions.</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const CIRC = 282.74;
+const recent = [];
+let lastRows = [];
+
+function esc(s) { const d = document.createElement("div"); d.textContent = String(s ?? ""); return d.innerHTML; }
+
+/* ---------- service status ---------- */
+async function checkHealth() {
+  let ok = false;
+  try { ok = (await fetch("/health", { cache: "no-store" })).ok; } catch (e) {}
+  $("status").className = "status " + (ok ? "on" : "off");
+  $("statusText").textContent = ok ? "Service online" : "Service unreachable";
+}
+checkHealth(); setInterval(checkHealth, 30000);
+
+/* ---------- single prediction ---------- */
+$("hours").addEventListener("input", e => $("hoursOut").textContent = e.target.value);
+$("attendance").addEventListener("input", e => $("attOut").textContent = e.target.value);
+
+function drawGauge(p, passed) {
+  $("arc").style.stroke = passed ? "var(--green)" : "var(--red)";
+  $("arc").style.strokeDashoffset = CIRC * (1 - Math.max(0, Math.min(1, p)));
+  $("gaugeNum").textContent = Math.round(p * 100) + "%";
+}
+
+function initials(n) {
+  const p = n.trim().split(/\s+/);
+  return ((p[0] || "")[0] + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+}
+
+function renderRecent() {
+  $("empty").style.display = recent.length ? "none" : "block";
+  $("historyCount").textContent = `${recent.length} of 5`;
+  $("list").innerHTML = recent.map(h => {
+    const c = h.passed ? "pass" : "fail";
+    return `<div class="rcard ${c}"><span class="av ${c}">${esc(initials(h.name))}</span>
+      <div class="rinfo"><b>${esc(h.name)}</b><span>${h.hours} h/day · ${h.att}% attendance</span>
+        <div class="mbar"><i style="width:${h.pct}%"></i></div></div>
+      <div class="rres"><span class="chip ${c}">${h.passed ? "Pass" : "At risk"}</span><strong>${h.pct}%</strong></div></div>`;
+  }).join("");
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = $("name").value.trim();
+  $("err").textContent = "";
+  if (!name) { $("err").textContent = "Enter the student's name to continue."; $("name").focus(); return; }
+
+  const btn = $("btn");
+  btn.disabled = true; btn.textContent = "Generating prediction...";
+  try {
+    const res = await fetch("/predict", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ study_hours: Number($("hours").value), attendance_percentage: Number($("attendance").value) })
+    });
+    const data = await res.json();
+    if (!res.ok) { $("err").textContent = data.error || "The prediction could not be generated."; return; }
+
+    const passed = data.prediction === "pass";
+    const pct = Math.round(data.pass_probability * 100);
+    drawGauge(data.pass_probability, passed);
+    $("resultBadge").textContent = "Prediction complete";
+    $("verdict").className = "verdict " + (passed ? "pass" : "fail");
+    $("verdict").textContent = `${name} is predicted to ${passed ? "pass" : "need support"}`;
+    $("explain").textContent = `Using ${data.study_hours} study ${data.study_hours === 1 ? "hour" : "hours"} per day and ${data.attendance_percentage}% attendance, the model estimates a ${pct}% chance of passing. A student is classified as PASS at 50% or higher.`;
+    $("statHours").innerHTML = `${data.study_hours} <small>hours/day</small>`;
+    $("statAttendance").innerHTML = `${data.attendance_percentage}% <small>attendance</small>`;
+
+    recent.unshift({ name, hours: data.study_hours, att: data.attendance_percentage, passed, pct });
+    recent.length = Math.min(recent.length, 5);
+    renderRecent();
+
+    drawChart([{ name, study_hours: data.study_hours, attendance_percentage: data.attendance_percentage,
+                 prediction: data.prediction, pass_probability: data.pass_probability }], data.curve, null, "chart1");
+    $("chart1Note").textContent = `Blue line: the model's pass chance at ${data.attendance_percentage}% attendance. The dot is ${name}.`;
+  } catch (err) {
+    $("err").textContent = "Can't reach the server. Check that it is still running.";
+  } finally {
+    btn.disabled = false; btn.textContent = "Generate prediction  →";
+  }
+});
+
+/* ---------- CSV helpers ---------- */
+function saveCsv(text, filename) {
+  const a = document.createElement("a");
+  const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8;" }));
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function cell(v) {  // blocks spreadsheet formula injection
+  let t = String(v ?? "");
+  if (/^[=+\-@]/.test(t)) t = "'" + t;
+  return '"' + t.replace(/"/g, '""') + '"';
+}
+
+$("tpl").addEventListener("click", () =>
+  saveCsv("name,study_hours,attendance_percentage\nAlex,5,85\nJordan,2,55\nMaria,3.5,70\nBen,1,45\nLiza,6,60\nCarlo,9,95\nAna,4,80\nNoel,2.5,90\n", "class-template.csv"));
+
+/* ---------- bulk scoring: runs automatically when a file is chosen or dropped ---------- */
+function setMsg(text, info) { $("batchMsg").textContent = text; $("batchMsg").className = "msg" + (info ? " info" : ""); }
+
+async function scoreFile(file) {
+  $("fname").textContent = file.name;
+  if (!/\.csv$/i.test(file.name)) { setMsg("Please choose a .csv file."); $("batchOut").hidden = true; return; }
+  if (file.size > 1024 * 1024) { setMsg("That file is over 1 MB. Split it into smaller files."); $("batchOut").hidden = true; return; }
+
+  setMsg("Scoring " + file.name + "...", true);
+  try {
+    const fd = new FormData(); fd.append("file", file);
+    const res = await fetch("/predict-batch", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) { setMsg(data.error || "The class could not be scored."); $("batchOut").hidden = true; return; }
+
+    lastRows = data.results;
+    const s = data.summary;
+    $("sumrow").innerHTML =
+      `<span class="chip neutral">${data.total} students total</span>
+       <span class="chip pass">${s.pass} predicted to pass</span>
+       <span class="chip fail">${s.fail} may need support</span>` +
+      (s.invalid ? `<span class="chip neutral">${s.invalid} rows need checking</span>` : "");
+
+    $("tbody").innerHTML = data.results.map(r => {
+      const ok = r.prediction !== "invalid", p = r.prediction === "pass";
+      return `<tr><td>${esc(r.name || "(no name)")}</td>
+        <td>${r.study_hours ?? "—"}</td>
+        <td>${r.attendance_percentage == null ? "—" : r.attendance_percentage + "%"}</td>
+        <td><span class="chip ${ok ? (p ? "pass" : "fail") : "neutral"}">${ok ? (p ? "Pass" : "At risk") : "Check data"}</span></td>
+        <td>${ok && r.pass_probability != null ? Math.round(r.pass_probability * 100) + "%" : "—"}</td></tr>`;
+    }).join("");
+    $("batchOut").hidden = false;
+    drawChart(data.results, data.curve, data.curve_attendance);
+    setMsg("Scored " + data.total + " students from " + file.name + ".", true);
+  } catch (err) {
+    setMsg("Can't reach the server. Check that it is still running.");
+    $("batchOut").hidden = true;
+  }
+}
+
+$("csv").addEventListener("change", () => {
+  const file = $("csv").files[0];
+  if (file) { scoreFile(file); $("csv").value = ""; }   // reset so the same file can be chosen again
+});
+
+["dragenter", "dragover"].forEach(ev => $("drop").addEventListener(ev, e => { e.preventDefault(); $("drop").classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => $("drop").addEventListener(ev, e => { e.preventDefault(); $("drop").classList.remove("over"); }));
+$("drop").addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) scoreFile(f); });
+
+$("dl").addEventListener("click", () => {
+  const head = "name,study_hours,attendance_percentage,result,pass_probability\n";
+  saveCsv(head + lastRows.map(r => [r.name, r.study_hours, r.attendance_percentage, r.prediction, r.pass_probability ?? ""]
+    .map(cell).join(",")).join("\n"), "class-results.csv");
+});
+
+/* ---------- chart: model curve + students, study hours vs predicted class ---------- */
+function drawChart(rows, curve, curveAtt, target = "chart") {
+  const pts = rows.filter(r => r.prediction !== "invalid");
+  if (!pts.length) { $(target).innerHTML = ""; return; }
+  if (target === "chart") $("curveAtt").textContent = curveAtt == null ? "–" : Math.round(curveAtt);
+
+  const W = 640, H = 300, L = 52, R = 18, T = 22, B = 48;
+  const maxH = Math.max(6, Math.ceil((Math.max(...pts.map(r => r.study_hours)) + 0.5) / 2) * 2);
+  const x = h => L + (h / maxH) * (W - L - R);
+  const y = p => T + (1 - p) * (H - T - B);
+  const f = n => n.toFixed(1);
+  const step = maxH <= 12 ? 1 : maxH <= 16 ? 2 : 4;
+  const BLUE = "#4776e6";
+
+  let g = `<rect x="${L}" y="${T}" width="${W - L - R}" height="${y(.5) - T}" fill="var(--green-bg)"/>
+           <rect x="${L}" y="${y(.5)}" width="${W - L - R}" height="${H - B - y(.5)}" fill="var(--red-bg)"/>`;
+  for (const p of [0, .25, .5, .75, 1])
+    g += `<line x1="${L}" x2="${W - R}" y1="${y(p)}" y2="${y(p)}" stroke="#e4e9f2"/>
+          <text x="${L - 8}" y="${y(p) + 3}" text-anchor="end">${p * 100}%</text>`;
+  for (let h = 0; h <= maxH; h += step)
+    g += `<text x="${x(h)}" y="${H - B + 17}" text-anchor="middle">${h}</text>`;
+
+  // model curve: pass chance at the class-average attendance
+  const line = (curve || []).filter(c => c.study_hours <= maxH);
+  if (line.length > 1) {
+    const d = line.map((c, i) => (i ? "L" : "M") + f(x(c.study_hours)) + " " + f(y(c.pass_probability))).join(" ");
+    const last = line[line.length - 1];
+    g += `<path d="${d} L${f(x(last.study_hours))} ${y(0)} L${x(0)} ${y(0)} Z" fill="${BLUE}" fill-opacity=".09"/>
+          <path d="${d}" fill="none" stroke="${BLUE}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const i = line.findIndex(c => c.pass_probability >= .5);
+    if (i > 0) {   // where the curve crosses the 50% pass line
+      const a = line[i - 1], b = line[i];
+      const hx = a.study_hours + (.5 - a.pass_probability) / (b.pass_probability - a.pass_probability) * (b.study_hours - a.study_hours);
+      g += `<line x1="${f(x(hx))}" x2="${f(x(hx))}" y1="${y(.5)}" y2="${y(0)}" stroke="${BLUE}" stroke-dasharray="2 3"/>
+            <circle cx="${f(x(hx))}" cy="${y(.5)}" r="4.5" fill="#fff" stroke="${BLUE}" stroke-width="2"/>
+            <text x="${f(x(hx) + (x(hx) + 130 <= W - R ? 9 : -9))}" y="${y(.5) + 18}" text-anchor="${x(hx) + 130 <= W - R ? "start" : "end"}" style="fill:#111d38">Pass threshold ≈ ${hx.toFixed(1)} h</text>`;
+    }
+  }
+
+  g += `<line x1="${L}" x2="${W - R}" y1="${y(.5)}" y2="${y(.5)}" stroke="#111d38" stroke-width="1.2" stroke-dasharray="5 4"/>
+        <text x="${L + 6}" y="${y(.5) - 6}">Pass line 50%</text>
+        <text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">Study hours per day</text>
+        <text transform="rotate(-90 13 ${(T + H - B) / 2})" x="13" y="${(T + H - B) / 2}" text-anchor="middle">Chance of passing</text>`;
+
+  for (const r of pts) {   // students
+    const pass = r.prediction === "pass";
+    g += `<circle cx="${f(x(r.study_hours))}" cy="${f(y(r.pass_probability))}" r="7" fill="${pass ? "var(--green)" : "var(--red)"}" stroke="#fff" stroke-width="2.5">
+            <title>${esc(r.name || "(no name)")}: ${r.study_hours} h/day, ${r.attendance_percentage}% attendance, ${Math.round(r.pass_probability * 100)}% pass chance</title></circle>`;
+    if (pts.length === 1)   // single student: name the dot
+      g += `<text x="${f(x(r.study_hours))}" y="${f(y(r.pass_probability) - 15)}" text-anchor="middle" style="fill:#111d38;font-weight:700">${esc(r.name)}</text>`;
+  }
+  $(target).innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Line chart of the model's pass chance by study hours, with each student plotted as a dot">${g}</svg>`;
+}
+</script>
+</body>
+</html>
