@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "Student ML API",
+    "description": "Postman collection for the Flask student pass prediction API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Predict student pass/fail",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"study_hours\": 6,\n  \"attendance_percentage\": 85\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/predict",
+        "description": "Send study hours and attendance to get a pass/fail prediction and probability."
+      },
+      "response": [
+        {
+          "name": "Successful prediction",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"study_hours\": 6,\n  \"attendance_percentage\": 85\n}"
+            },
+            "url": "{{base_url}}/predict"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"study_hours\": 6.0,\n  \"attendance_percentage\": 85.0,\n  \"prediction\": \"pass\",\n  \"probability_of_passing\": 0.99\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
+    }
+  ]
+}
