@@ -1,6 +1,6 @@
 # IT Elective 3 (AI: Machine Learning) – Final Exercises
 
-**Student:** Jubelle Franze C. Mabalatan
+**Student:** Kim C. Ferrer
 **Course:** IT Elective 3 – Artificial Intelligence: Machine Learning
 **Topic:** Model Persistence and Basic Deployment with Flask and Streamlit
 
@@ -125,5 +125,5 @@ The app opens in your browser at `http://localhost:8501`. Enter a student name a
 
 ## Author
 
-**Jubelle Franze C. Mabalatan**
+**Kim C. Ferrer**
 IT Elective 3 – Final Exercises
