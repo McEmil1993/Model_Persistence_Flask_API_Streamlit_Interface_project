@@ -38,6 +38,11 @@ curl.exe -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/jso
 
 ## 3) Run the Streamlit app
 
+Install dependencies with `python -m pip install -r requirements.txt`.
+The dashboard includes an interactive chart with hover details, a passing-score
+reference, and your submitted prediction. Result cards show your score, study
+hours, and attendance, with a comparison for up to one additional study hour.
+
 Run:
 
 ```bash
