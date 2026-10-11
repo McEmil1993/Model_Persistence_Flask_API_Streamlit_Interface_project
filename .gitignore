@@ -1,0 +1,43 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+.postman/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Machine learning model files (generated locally)
+student_pass_model.joblib
+*.pkl
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Test and coverage files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.bak
