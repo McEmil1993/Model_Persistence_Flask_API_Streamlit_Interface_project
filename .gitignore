@@ -1,0 +1,8 @@
+++++++ NOTE ++++++
+Git ignore 
+.venv/
+venv/
+__pycache__/
+*.pyc
+.streamlit/
++++++++++++++++++
