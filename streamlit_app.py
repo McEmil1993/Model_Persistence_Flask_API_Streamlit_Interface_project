@@ -1,5 +1,6 @@
 ﻿"""
-streamlit_app.py — Professional DARK MODE Design
+streamlit_app.py — Complete with Fixed Chart
+Frontend that calls the Flask backend API.
 """
 
 import streamlit as st
@@ -7,6 +8,9 @@ import requests
 import pandas as pd
 import numpy as np
 
+# ============================================================
+# CONFIG
+# ============================================================
 API_URL = "http://127.0.0.1:5000/predict"
 
 st.set_page_config(
@@ -21,12 +25,10 @@ st.set_page_config(
 # ============================================================
 st.markdown("""
 <style>
-    /* ---------- Hide Streamlit branding ---------- */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* ---------- Global Dark Background ---------- */
     .stApp {
         background: #0f172a !important;
     }
@@ -36,15 +38,11 @@ st.markdown("""
         max-width: 900px;
     }
 
-    /* ---------- Global Text Color ---------- */
     html, body, [class*="css"], .stMarkdown, p, span, div, label, h1, h2, h3, h4, h5, h6 {
         color: #f1f5f9 !important;
     }
-    .stApp, .main, section.main {
-        color: #f1f5f9 !important;
-    }
 
-    /* ---------- Hero Header ---------- */
+    /* Hero Header */
     .hero {
         background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
         padding: 3rem 2rem;
@@ -53,14 +51,11 @@ st.markdown("""
         text-align: center;
         box-shadow: 0 20px 50px rgba(139, 92, 246, 0.5);
         margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
     }
     .hero-emoji {
         font-size: 4rem;
         display: block;
         margin-bottom: 0.5rem;
-        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
     }
     .hero h1 {
         font-size: 2.5rem;
@@ -68,7 +63,6 @@ st.markdown("""
         margin: 0;
         color: white !important;
         letter-spacing: -1px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
     .hero p {
         font-size: 1.1rem;
@@ -76,7 +70,6 @@ st.markdown("""
         margin-top: 0.75rem;
         margin-bottom: 0;
         color: white !important;
-        font-weight: 500;
     }
     .hero .badge {
         display: inline-block;
@@ -90,7 +83,7 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* ---------- Section Title ---------- */
+    /* Section Title */
     .section-title {
         font-size: 1.15rem;
         font-weight: 800;
@@ -100,7 +93,7 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
 
-    /* ---------- Inputs DARK ---------- */
+    /* Inputs */
     .stTextInput label, .stNumberInput label {
         font-weight: 700 !important;
         color: #e2e8f0 !important;
@@ -112,7 +105,6 @@ st.markdown("""
         border: 2px solid #334155 !important;
         padding: 0.7rem 1rem !important;
         font-size: 1rem !important;
-        transition: all 0.2s !important;
         background: #1e293b !important;
         color: #f1f5f9 !important;
     }
@@ -123,22 +115,10 @@ st.markdown("""
     .stTextInput > div > div > input:focus,
     .stNumberInput > div > div > input:focus {
         border-color: #8b5cf6 !important;
-        background: #1e293b !important;
         box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
     }
 
-    /* Number input +/- buttons */
-    .stNumberInput button {
-        background: #334155 !important;
-        color: #f1f5f9 !important;
-        border: 1px solid #475569 !important;
-    }
-    .stNumberInput button:hover {
-        background: #475569 !important;
-        color: white !important;
-    }
-
-    /* ---------- Button ---------- */
+    /* Button */
     .stButton > button {
         background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
         color: white !important;
@@ -148,9 +128,7 @@ st.markdown("""
         font-weight: 800;
         font-size: 1.05rem;
         width: 100%;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 8px 20px rgba(99, 102, 241, 0.5);
-        letter-spacing: 0.3px;
     }
     .stButton > button:hover {
         transform: translateY(-3px);
@@ -159,7 +137,7 @@ st.markdown("""
         color: white !important;
     }
 
-    /* ---------- Result Banner ---------- */
+    /* Result Banner */
     .result-pass {
         background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
         padding: 2rem;
@@ -188,17 +166,15 @@ st.markdown("""
         font-size: 1.9rem;
         font-weight: 900;
         color: white !important;
-        letter-spacing: -0.5px;
     }
     .result-pass p, .result-fail p {
         margin: 0.6rem 0 0 0;
         font-size: 1rem;
         opacity: 0.95;
         color: white !important;
-        font-weight: 500;
     }
 
-    /* ---------- Metric Cards DARK ---------- */
+    /* Metric Cards */
     .metrics-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -212,12 +188,9 @@ st.markdown("""
         text-align: center;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         border: 2px solid #334155;
-        transition: all 0.3s;
     }
     .metric-card:hover {
-        transform: translateY(-4px);
         border-color: #8b5cf6;
-        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
     }
     .metric-label {
         font-size: 0.75rem;
@@ -231,10 +204,9 @@ st.markdown("""
         font-weight: 900;
         color: #a5b4fc !important;
         margin-top: 0.4rem;
-        line-height: 1.1;
     }
 
-    /* ---------- Info Box DARK ---------- */
+    /* Info Box */
     .info-box {
         background: #1e293b;
         border-left: 5px solid #8b5cf6;
@@ -244,7 +216,6 @@ st.markdown("""
         color: #e2e8f0 !important;
         font-size: 0.95rem;
         line-height: 1.7;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
     .info-box strong {
         color: #a5b4fc !important;
@@ -258,7 +229,7 @@ st.markdown("""
         border: 1px solid #334155;
     }
 
-    /* ---------- Placeholder DARK ---------- */
+    /* Placeholder */
     .placeholder {
         background: #1e293b;
         padding: 3.5rem 2rem;
@@ -266,26 +237,22 @@ st.markdown("""
         border: 2px dashed #475569;
         text-align: center;
         color: #94a3b8 !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
     .placeholder-emoji {
         font-size: 3.5rem;
         display: block;
         margin-bottom: 0.8rem;
-        opacity: 0.7;
     }
     .placeholder p {
         font-size: 1.05rem;
         margin: 0;
-        line-height: 1.6;
-        font-weight: 500;
         color: #cbd5e1 !important;
     }
     .placeholder strong {
         color: #a5b4fc !important;
     }
 
-    /* ---------- Footer DARK ---------- */
+    /* Footer */
     .footer {
         text-align: center;
         color: #64748b !important;
@@ -297,26 +264,6 @@ st.markdown("""
     }
     .footer strong {
         color: #a5b4fc !important;
-    }
-
-    /* ---------- Streamlit Alerts (warning/error) ---------- */
-    .stAlert {
-        background: #1e293b !important;
-        color: #f1f5f9 !important;
-        border-radius: 12px !important;
-    }
-    .stAlert p {
-        color: #f1f5f9 !important;
-    }
-
-    /* ---------- Caption ---------- */
-    .stCaption, [data-testid="stCaptionContainer"] {
-        color: #94a3b8 !important;
-    }
-
-    /* ---------- Spinner ---------- */
-    .stSpinner > div {
-        border-top-color: #8b5cf6 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -334,7 +281,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================
-# INPUT CARD
+# INPUTS
 # ============================================================
 st.markdown('<div class="section-title">📝 Student Information</div>', unsafe_allow_html=True)
 
@@ -347,14 +294,12 @@ with col1:
     )
     study_hours = st.number_input(
         "📚 Study Hours per Day",
-        min_value=0.0, max_value=24.0, value=5.0, step=0.5,
-        help="Average number of hours the student studies daily"
+        min_value=0.0, max_value=24.0, value=5.0, step=0.5
     )
 with col2:
     attendance = st.number_input(
         "🗓️ Attendance Percentage",
-        min_value=0.0, max_value=100.0, value=85.0, step=1.0,
-        help="Percentage of classes attended"
+        min_value=0.0, max_value=100.0, value=85.0, step=1.0
     )
     st.markdown("<br>", unsafe_allow_html=True)
     predict_clicked = st.button("🔮 Predict Result", use_container_width=True)
@@ -380,6 +325,7 @@ if predict_clicked:
             if response.status_code == 200:
                 result = response.json()
 
+                # Result Banner
                 if result["prediction"] == "Pass":
                     st.markdown(f"""
                     <div class="result-pass">
@@ -397,6 +343,7 @@ if predict_clicked:
                     </div>
                     """, unsafe_allow_html=True)
 
+                # Metric Cards
                 st.markdown(f"""
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -414,6 +361,7 @@ if predict_clicked:
                 </div>
                 """, unsafe_allow_html=True)
 
+                # Explanation
                 st.markdown(f"""
                 <div class="info-box">
                     <strong>🧠 How this was generated:</strong><br>
@@ -426,6 +374,7 @@ if predict_clicked:
                 </div>
                 """, unsafe_allow_html=True)
 
+                # Bonus Chart — FIXED: attendance set to 85% para may curve
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown('<div class="section-title">📈 Study Hours vs Predicted Class</div>', unsafe_allow_html=True)
 
@@ -434,9 +383,11 @@ if predict_clicked:
                     chart_rows = []
                     for h in hours_range:
                         try:
+                            # I-vary ang attendance based sa study hours (para realistic)
+                            varied_attendance = min(100, 50 + (h * 5))
                             r = requests.post(API_URL, json={
                                 "study_hours": float(h),
-                                "attendance_percentage": attendance
+                                "attendance_percentage": varied_attendance
                             }, timeout=5)
                             cls = 1 if r.json()["prediction"] == "Pass" else 0
                         except Exception:
@@ -481,3 +432,4 @@ st.markdown("""
     Frontend: Streamlit · Backend: Flask API · Model: Logistic Regression
 </div>
 """, unsafe_allow_html=True)
+
