@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Student Pass Predictor Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F6FB;--surface:#FFFFFF;--ink:#14213D;--muted:#566280;--line:#D3DBE8;--accent:#2F5BEA;--pass:#16794E;--pass-bg:#E1F3EA;--fail:#B3261E;--fail-bg:#FBE6E3;--code-bg:#0F1A33;--code-ink:#DCE5FF;--grid:#E3E9F3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1424;--surface:#16203A;--ink:#E8EDF9;--muted:#9AA6C4;--line:#2A3858;--accent:#7C9CFF;--pass:#5FD39A;--pass-bg:#12382A;--fail:#FF8A80;--fail-bg:#40191A;--code-bg:#09101F;--code-ink:#DCE5FF;--grid:#243252}}
+:root[data-theme="dark"]{--bg:#0D1424;--surface:#16203A;--ink:#E8EDF9;--muted:#9AA6C4;--line:#2A3858;--accent:#7C9CFF;--pass:#5FD39A;--pass-bg:#12382A;--fail:#FF8A80;--fail-bg:#40191A;--code-bg:#09101F;--code-ink:#DCE5FF;--grid:#243252}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:28px;line-height:1.15;margin:0 0 6px;font-weight:700;letter-spacing:-.01em}
+.lede{margin:0 0 18px;color:var(--muted)}
+.tabs{display:flex;border-bottom:2px solid var(--line);margin-bottom:16px}
+.tabs button{flex:1;min-height:48px;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;color:var(--muted);font:600 16px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.io{margin:0 0 14px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface);font-size:15px}
+label{display:block;margin:0 0 12px;font-weight:500;font-size:15px}
+input{display:block;width:100%;min-height:48px;margin-top:4px;padding:8px 12px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;font:400 16px "IBM Plex Mono",ui-monospace,Consolas,monospace}
+input#name{font-family:inherit}
+.go{width:100%;min-height:48px;border:0;border-radius:6px;background:var(--accent);color:#fff;font:700 16px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+:root[data-theme="dark"] .go{color:#0D1424}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .go{color:#0D1424}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.chips button{min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:20px;background:var(--surface);color:var(--ink);font:500 14px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.hint{color:var(--fail);margin:10px 0 0;min-height:1.5em;font-size:15px}
+.slip{margin-top:16px;padding:16px;border:1px solid currentColor;border-radius:6px}
+.slip.pass{color:var(--pass);background:var(--pass-bg)}
+.slip.fail{color:var(--fail);background:var(--fail-bg)}
+.verdict{font-size:56px;line-height:1;font-weight:700;letter-spacing:-.02em;margin:0 0 8px}
+.msg{margin:0;color:var(--ink)}
+h2{font-size:18px;margin:22px 0 6px}
+.why{margin:0;color:var(--muted);font-size:15px}
+svg{display:block;width:100%;height:auto;margin-top:6px}
+svg text{fill:var(--muted);font:11px "IBM Plex Mono",monospace}
+.gl{stroke:var(--grid);stroke-width:1}.th{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1}
+.cv{fill:none;stroke:var(--muted);stroke-width:2.5}
+.dp{fill:var(--pass);opacity:.5}.df{fill:var(--fail);opacity:.5}.zf{fill:var(--fail);opacity:.12}.zp{fill:var(--pass);opacity:.12}
+.me{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 0;font-size:14px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.req{margin:0 0 8px;font:500 13px "IBM Plex Mono",monospace;color:var(--muted)}
+pre{margin:0 0 14px;padding:12px;background:var(--code-bg);color:var(--code-ink);border-radius:6px;font:400 14px/1.5 "IBM Plex Mono",ui-monospace,Consolas,monospace;overflow-x:auto}
+.status{display:inline-block;margin:0 0 8px;padding:2px 10px;border-radius:4px;font:500 14px "IBM Plex Mono",monospace}
+.status.ok{background:var(--pass-bg);color:var(--pass)}.status.bad{background:var(--fail-bg);color:var(--fail)}
+.foot{margin-top:28px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Student pass predictor</h1>
+<p class="lede">Test both exercises here. This prototype uses the same trained models as your Python files, running in the browser.</p>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="t1" aria-selected="true" aria-controls="p1">Streamlit app</button>
+  <button role="tab" id="t2" aria-selected="false" aria-controls="p2">Flask API</button>
+</div>
+
+<section id="p1" role="tabpanel" aria-labelledby="t1">
+  <p class="io"><b>Inputs:</b> student name, study hours (0 to 12).<br><b>Output:</b> Pass or Fail message, chance of passing, explanation, chart.</p>
+  <label>Student name<input id="name" type="text" placeholder="e.g. Juan Dela Cruz" autocomplete="off"></label>
+  <label>Study hours<input id="hours" type="number" min="0" max="12" step="0.5" value="4" inputmode="decimal"></label>
+  <button class="go" id="predict">Predict</button>
+  <p class="hint" id="hint" role="alert"></p>
+  <div id="result" hidden>
+    <div class="slip" id="slip"><p class="verdict" id="verdict"></p><p class="msg" id="msg"></p></div>
+    <h2>How was this prediction generated?</h2>
+    <p class="why">The app loads a Logistic Regression model that was already trained and saved as student_pass_model.joblib, so no training happens here. The model turns the study hours into a pass probability. At 50% or higher the result is Pass; otherwise it is Fail. For this student:</p>
+    <pre id="calc"></pre>
+    <h2>Study hours vs. predicted class</h2>
+    <div id="chart"></div>
+    <div class="legend"><span><i class="sw" style="background:var(--pass)"></i>Past student passed</span><span><i class="sw" style="background:var(--fail)"></i>Past student failed</span><span><i class="sw" style="background:var(--accent);border-radius:2px;transform:rotate(45deg)"></i>This student</span></div>
+    <p class="why">Red area: the model predicts Fail. Green area: it predicts Pass (Pass starts at about 5.7 study hours).</p>
+  </div>
+</section>
+
+<section id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+  <p class="io"><b>Inputs (JSON body):</b> study_hours, attendance_percentage (0 to 100).<br><b>Output:</b> HTTP status and JSON with both values, prediction and pass probability.</p>
+  <label>study_hours<input id="fh" type="text" inputmode="decimal" value="6" autocomplete="off"></label>
+  <label>attendance_percentage<input id="fa" type="text" inputmode="decimal" value="90" autocomplete="off"></label>
+  <div class="chips" aria-label="Quick tests">
+    <button data-h="6" data-a="90">Valid</button>
+    <button data-h="6" data-a="120">Attendance 120</button>
+    <button data-h="five" data-a="80">Text, not a number</button>
+    <button data-h="5" data-a="">Missing attendance</button>
+  </div>
+  <p class="req">POST /predict &middot; Content-Type: application/json</p>
+  <pre id="preview"></pre>
+  <button class="go" id="send">Send request</button>
+  <div id="resp" hidden style="margin-top:16px"><span class="status" id="status"></span><pre id="json"></pre></div>
+</section>
+
+<p class="foot">Prototype only. Your real apps run these models in Python with joblib.</p>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+// Coefficients copied from the trained models (Logistic Regression)
+const sig=z=>1/(1+Math.exp(-z));
+const probHours=h=>sig(-5.071918780107901+0.8944387342456798*h);                       // student_pass_model.joblib
+const probFull=(h,a)=>sig(-25.04107432349084+1.497329506634854*h+0.219941612033149*a); // student_pass_model_attendance.joblib
+const DATA=[[0.9,0],[1.1,0],[1.4,0],[1.7,0],[1.7,0],[2.0,0],[2.3,0],[2.3,0],[2.7,0],[2.7,0],[3.6,1],[3.9,0],[4.0,0],[4.0,0],[4.7,1],[4.7,1],[4.8,0],[4.9,0],[5.0,0],[5.0,1],[5.8,0],[6.5,0],[6.6,1],[6.9,1],[7.0,1],[7.1,1],[7.6,1],[7.7,1],[7.7,1],[7.9,1],[7.9,1],[8.0,1],[8.3,1],[8.4,0],[8.7,1],[9.0,1],[9.3,1],[9.7,1],[9.7,1],[9.8,1]];
+
+function tab(n){
+  [1,2].forEach(i=>{$('t'+i).setAttribute('aria-selected',i===n);$('p'+i).hidden=i!==n;});
+}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+
+/* ---------- Tab 1: Streamlit-style app ---------- */
+function chart(h,p){
+  const X=v=>40+v/12*308,Y=v=>12+(1-v)*184;
+  let s='<svg viewBox="0 0 360 232" role="img" aria-label="Pass probability by study hours, with this student marked">';
+  const bd=5.071918780107901/0.8944387342456798;
+  s+=`<rect class="zf" x="40" y="12" width="${X(bd)-40}" height="184"/><rect class="zp" x="${X(bd)}" y="12" width="${348-X(bd)}" height="184"/>`;
+  [0,.5,1].forEach(v=>{s+=`<line class="${v===.5?'th':'gl'}" x1="40" x2="348" y1="${Y(v)}" y2="${Y(v)}"/><text x="34" y="${Y(v)+4}" text-anchor="end">${v}</text>`;});
+  for(let t=0;t<=12;t+=2)s+=`<text x="${X(t)}" y="212" text-anchor="middle">${t}</text>`;
+  s+='<text x="194" y="229" text-anchor="middle">Study hours</text><text transform="translate(9 104) rotate(-90)" text-anchor="middle">Pass probability</text>';
+  let pts='';for(let i=0;i<=120;i++){const v=i/10;pts+=`${X(v).toFixed(1)},${Y(probHours(v)).toFixed(1)} `;}
+  s+=`<polyline class="cv" points="${pts}"/>`;
+  DATA.forEach(([x,c])=>{s+=`<circle class="${c?'dp':'df'}" cx="${X(x)}" cy="${Y(c)}" r="4"/>`;});
+  const cx=X(h),cy=Y(p);
+  s+=`<path class="me" d="M${cx} ${cy-10}L${cx+10} ${cy}L${cx} ${cy+10}L${cx-10} ${cy}Z"/></svg>`;
+  return s;
+}
+$('predict').onclick=()=>{
+  const raw=$('hours').value.trim(),h=Number(raw);
+  $('hint').textContent='';
+  if(raw===''||!isFinite(h)||h<0||h>12){$('hint').textContent='Enter study hours between 0 and 12.';$('result').hidden=true;return;}
+  const name=$('name').value.trim()||'The student';
+  const p=probHours(h),pass=p>=0.5,label=pass?'Pass':'Fail';
+  $('result').hidden=false;
+  $('slip').className='slip '+(pass?'pass':'fail');
+  $('verdict').textContent=label;
+  $('msg').textContent=`${name} studied for ${+h.toFixed(2)} hours. Prediction: ${label} (${Math.round(p*100)}% chance of passing).`;
+  $('calc').textContent=`score = -5.07 + 0.89 x ${+h.toFixed(2)} hours = ${(-5.071918780107901+0.8944387342456798*h).toFixed(2)}\npass probability = 1 / (1 + e^-score) = ${Math.round(p*100)}%`;
+  $('chart').innerHTML=chart(h,p);
+};
+
+/* ---------- Tab 2: Flask-style API ---------- */
+const field=t=>{t=t.trim();if(t==='')return undefined;return /^-?\d+(\.\d+)?$/.test(t)?Number(t):t;};
+const getBody=()=>({study_hours:field($('fh').value),attendance_percentage:field($('fa').value)});
+function showPreview(){
+  const parts=Object.entries(getBody()).filter(([,v])=>v!==undefined).map(([k,v])=>`  "${k}": ${typeof v==='number'?v:JSON.stringify(v)}`);
+  $('preview').textContent=parts.length?'{\n'+parts.join(',\n')+'\n}':'{}';
+}
+['fh','fa'].forEach(id=>$(id).addEventListener('input',showPreview));
+document.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{$('fh').value=b.dataset.h;$('fa').value=b.dataset.a;showPreview();$('send').click();});
+const pyNum=n=>Number.isInteger(n)?n.toFixed(1):String(n);
+$('send').onclick=()=>{
+  const body=getBody(),errors=[];
+  const read=k=>{const v=body[k];if(v===undefined){errors.push(`'${k}' is required.`);return null;}if(typeof v!=='number'){errors.push(`'${k}' must be a number.`);return null;}if(!isFinite(v)){errors.push(`'${k}' must be a finite number.`);return null;}return v;};
+  const h=read('study_hours');if(h!==null&&h<0)errors.push("'study_hours' cannot be negative.");
+  const a=read('attendance_percentage');if(a!==null&&!(a>=0&&a<=100))errors.push("'attendance_percentage' must be between 0 and 100.");
+  const ok=errors.length===0;let out;
+  if(ok){
+    const p=probFull(h,a);
+    out='{\n  "attendance_percentage": '+pyNum(a)+',\n  "pass_probability": '+pyNum(Math.round(p*1000)/1000)+',\n  "prediction": "'+(p>=0.5?'Pass':'Fail')+'",\n  "study_hours": '+pyNum(h)+'\n}';
+  }else{
+    out='{\n  "errors": [\n'+errors.map(e=>'    '+JSON.stringify(e)).join(',\n')+'\n  ]\n}';
+  }
+  $('resp').hidden=false;
+  $('status').textContent=ok?'200 OK':'400 Bad Request';
+  $('status').className='status '+(ok?'ok':'bad');
+  $('json').textContent=out;
+};
+showPreview();
+</script>
+</body>
+</html>
