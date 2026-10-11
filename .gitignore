@@ -1,1 +1,6 @@
 Git-TXT.txt
+.venv/
+venv/
+__pycache__/
+*.pyc
+.streamlit/
