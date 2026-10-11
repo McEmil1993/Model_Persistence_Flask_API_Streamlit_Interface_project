@@ -40,9 +40,9 @@ student_prediction/
 
 Running the training scripts creates two model files in the same folder:
 
-| File | Created by | Used by |
-|---|---|---|
-| `student_pass_model.joblib` | `train_model.py` | `streamlit_app.py` |
+| File                                   | Created by                  | Used by              |
+| -------------------------------------- | --------------------------- | -------------------- |
+| `student_pass_model.joblib`            | `train_model.py`            | `streamlit_app.py`   |
 | `student_pass_model_attendance.joblib` | `train_model_attendance.py` | `app.py` (Flask API) |
 
 ---
@@ -51,12 +51,12 @@ Running the training scripts creates two model files in the same folder:
 
 You need these installed:
 
-| Tool | Why | How to check |
-|---|---|---|
-| **Python 3.9 or newer** | Runs the project | `python --version` |
-| **Git** | Downloads the project | `git --version` |
-| **VS Code** (recommended) | Editor with a built-in terminal | |
-| **Postman** (or the Postman VS Code extension) | Tests the API | |
+| Tool                                           | Why                             | How to check       |
+| ---------------------------------------------- | ------------------------------- | ------------------ |
+| **Python 3.9 or newer**                        | Runs the project                | `python --version` |
+| **Git**                                        | Downloads the project           | `git --version`    |
+| **VS Code** (recommended)                      | Editor with a built-in terminal |                    |
+| **Postman** (or the Postman VS Code extension) | Tests the API                   |                    |
 
 > **Windows tip:** When installing Python, tick **"Add Python to PATH"** on the first screen. If `python` is not recognized later, try `py` instead.
 
@@ -78,12 +78,14 @@ cd <your-repo>
 A virtual environment is a private folder of packages for this project only, so it will not clash with other projects.
 
 **Windows**
+
 ```powershell
 python -m venv venv
 venv\Scripts\activate
 ```
 
 **macOS / Linux**
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -96,6 +98,7 @@ You will know it worked when `(venv)` appears at the start of your terminal line
 ```
 
 > **PowerShell says "running scripts is disabled"?** Run this once, then activate again:
+>
 > ```powershell
 > Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 > ```
@@ -182,15 +185,15 @@ The Flask API and the Streamlit app are separate. You can run either one without
 
 ### The API at a glance
 
-| | |
-|---|---|
-| **URL** | `http://127.0.0.1:5000/predict` |
-| **Method** | `POST` (a `GET` with query parameters also works) |
-| **Body type** | JSON |
+|               |                                                   |
+| ------------- | ------------------------------------------------- |
+| **URL**       | `http://127.0.0.1:5000/predict`                   |
+| **Method**    | `POST` (a `GET` with query parameters also works) |
+| **Body type** | JSON                                              |
 
-| Field | Type | Rule |
-|---|---|---|
-| `study_hours` | number | 0 or more |
+| Field                   | Type   | Rule              |
+| ----------------------- | ------ | ----------------- |
+| `study_hours`           | number | 0 or more         |
 | `attendance_percentage` | number | between 0 and 100 |
 
 ### Send your first request
@@ -203,7 +206,7 @@ The Flask API and the Streamlit app are separate. You can run either one without
 6. Select **raw**, then choose **JSON** from the dropdown on the right.
 7. Paste this into the body box:
    ```json
-   {"study_hours": 7, "attendance_percentage": 85}
+   { "study_hours": 7, "attendance_percentage": 85 }
    ```
 8. Click **Send**.
 
@@ -226,22 +229,22 @@ Status: **200 OK**.
 
 Edit the body, click **Send**, and compare the status code:
 
-| Test | Body | Expected status |
-|---|---|---|
-| Normal (pass) | `{"study_hours": 7, "attendance_percentage": 85}` | 200 |
-| Low values (fail) | `{"study_hours": 2, "attendance_percentage": 50}` | 200 |
-| Lowest attendance | `{"study_hours": 5, "attendance_percentage": 0}` | 200 |
-| Highest attendance | `{"study_hours": 5, "attendance_percentage": 100}` | 200 |
-| Attendance too high | `{"study_hours": 3, "attendance_percentage": 101}` | 400 |
-| Attendance negative | `{"study_hours": 3, "attendance_percentage": -5}` | 400 |
-| Text instead of number | `{"study_hours": "abc", "attendance_percentage": 80}` | 400 |
-| Missing field | `{"study_hours": 5}` | 400 |
-| Negative hours | `{"study_hours": -1, "attendance_percentage": 80}` | 400 |
+| Test                   | Body                                                  | Expected status |
+| ---------------------- | ----------------------------------------------------- | --------------- |
+| Normal (pass)          | `{"study_hours": 7, "attendance_percentage": 85}`     | 200             |
+| Low values (fail)      | `{"study_hours": 2, "attendance_percentage": 50}`     | 200             |
+| Lowest attendance      | `{"study_hours": 5, "attendance_percentage": 0}`      | 200             |
+| Highest attendance     | `{"study_hours": 5, "attendance_percentage": 100}`    | 200             |
+| Attendance too high    | `{"study_hours": 3, "attendance_percentage": 101}`    | 400             |
+| Attendance negative    | `{"study_hours": 3, "attendance_percentage": -5}`     | 400             |
+| Text instead of number | `{"study_hours": "abc", "attendance_percentage": 80}` | 400             |
+| Missing field          | `{"study_hours": 5}`                                  | 400             |
+| Negative hours         | `{"study_hours": -1, "attendance_percentage": 80}`    | 400             |
 
 Example error response (attendance 101):
 
 ```json
-{"error": "attendance_percentage must be between 0 and 100"}
+{ "error": "attendance_percentage must be between 0 and 100" }
 ```
 
 ### Test with a GET request (optional)
@@ -260,13 +263,13 @@ Click **Save**, create a collection named "Student Pass API", and give each requ
 
 ### Understanding status codes
 
-| Code | Meaning | What to do |
-|---|---|---|
-| **200** | Success | Read the prediction in the body |
-| **400** | Bad input | Read the `error` message and fix your request |
-| **404** | URL not found | Check the URL ends with `/predict` |
-| **405** | Wrong method | Use POST or GET |
-| **500** | Server crashed | Read the error in the terminal running `app.py` |
+| Code                     | Meaning              | What to do                                       |
+| ------------------------ | -------------------- | ------------------------------------------------ |
+| **200**                  | Success              | Read the prediction in the body                  |
+| **400**                  | Bad input            | Read the `error` message and fix your request    |
+| **404**                  | URL not found        | Check the URL ends with `/predict`               |
+| **405**                  | Wrong method         | Use POST or GET                                  |
+| **500**                  | Server crashed       | Read the error in the terminal running `app.py`  |
 | "Could not get response" | Server not reachable | Start `python app.py` and check the URL and port |
 
 ---
@@ -276,11 +279,13 @@ Click **Save**, create a collection named "Student Pass API", and give each requ
 Postman is not required. You can test from a terminal too.
 
 **Windows (use `curl.exe`, not `curl`, so PowerShell does not use its own alias):**
+
 ```powershell
 curl.exe -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d "{\"study_hours\": 7, \"attendance_percentage\": 85}"
 ```
 
 **macOS / Linux:**
+
 ```bash
 curl -X POST http://127.0.0.1:5000/predict \
   -H "Content-Type: application/json" \
@@ -301,30 +306,30 @@ The terminal running `python app.py` is your best debugging tool. Debug mode is 
 127.0.0.1 - - [11/Oct/2026 07:14:42] "POST /predict HTTP/1.1" 200 -
 ```
 
-| Line | Meaning |
-|---|---|
-| `Content-Type=application/json` | Postman sent the body as JSON (correct) |
-| `data={...}` | The exact values the server received |
+| Line                             | Meaning                                             |
+| -------------------------------- | --------------------------------------------------- |
+| `Content-Type=application/json`  | Postman sent the body as JSON (correct)             |
+| `data={...}`                     | The exact values the server received                |
 | `prediction=1 probability=0.989` | The model predicted pass (1) with 98.9% probability |
-| `"POST /predict HTTP/1.1" 200` | Request succeeded |
+| `"POST /predict HTTP/1.1" 200`   | Request succeeded                                   |
 
 ### Reading a 400 error
 
 Check the `[DEBUG]` line above it:
 
-| What you see | Meaning | Fix |
-|---|---|---|
-| `Content-Type=text/plain` | Body type is wrong | Set Body to **raw → JSON** in Postman |
-| `data={}` | The server received no usable data | Check for single quotes, trailing commas, or a GET with no parameters |
-| `data={'study_hours': 5}` | A field is missing | Add `attendance_percentage` |
+| What you see              | Meaning                            | Fix                                                                   |
+| ------------------------- | ---------------------------------- | --------------------------------------------------------------------- |
+| `Content-Type=text/plain` | Body type is wrong                 | Set Body to **raw → JSON** in Postman                                 |
+| `data={}`                 | The server received no usable data | Check for single quotes, trailing commas, or a GET with no parameters |
+| `data={'study_hours': 5}` | A field is missing                 | Add `attendance_percentage`                                           |
 
 ### Normal messages you can ignore
 
-| Message | Why it is harmless |
-|---|---|
+| Message                                 | Why it is harmless                                |
+| --------------------------------------- | ------------------------------------------------- |
 | `WARNING: This is a development server` | It only means "don't use this on a public server" |
-| `GET /favicon.ico 404` | Browsers ask for a tab icon automatically |
-| `Debugger PIN: ...` | Only used with browser error pages |
+| `GET /favicon.ico 404`                  | Browsers ask for a tab icon automatically         |
+| `Debugger PIN: ...`                     | Only used with browser error pages                |
 
 > **Never run with `debug=True` on a public server.** It is for your own computer only.
 
@@ -332,20 +337,20 @@ Check the `[DEBUG]` line above it:
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---|---|
-| `python` is not recognized | Reinstall Python with "Add to PATH" ticked, or use `py` |
-| `ModuleNotFoundError: No module named ...` | Activate the virtual environment, then run `pip install -r requirements.txt` |
-| `FileNotFoundError: ...joblib` | Run both training scripts first, from inside the project folder |
-| `'streamlit' is not recognized` | Activate the virtual environment, or use `python -m streamlit run streamlit_app.py` |
-| Postman: "Could not get response" | `python app.py` is not running, or the URL or port is wrong |
-| 404 on `POST /` | The URL is missing `/predict` |
-| 400 "must be numbers" | Body must be raw → JSON, with plain double quotes and numeric values |
-| 400 "Missing field(s)" | The body needs both `study_hours` and `attendance_percentage` |
-| Postman shows an old response | Click **Send** again |
-| Port 5000 already in use | Change the last line of `app.py` to `app.run(debug=True, use_reloader=False, port=5001)` and use port 5001 |
-| Code changes are not showing | Stop the server with `Ctrl+C` and run `python app.py` again |
-| Warnings after upgrading scikit-learn | Run both training scripts again to rebuild the model files |
+| Problem                                    | Fix                                                                                                        |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `python` is not recognized                 | Reinstall Python with "Add to PATH" ticked, or use `py`                                                    |
+| `ModuleNotFoundError: No module named ...` | Activate the virtual environment, then run `pip install -r requirements.txt`                               |
+| `FileNotFoundError: ...joblib`             | Run both training scripts first, from inside the project folder                                            |
+| `'streamlit' is not recognized`            | Activate the virtual environment, or use `python -m streamlit run streamlit_app.py`                        |
+| Postman: "Could not get response"          | `python app.py` is not running, or the URL or port is wrong                                                |
+| 404 on `POST /`                            | The URL is missing `/predict`                                                                              |
+| 400 "must be numbers"                      | Body must be raw → JSON, with plain double quotes and numeric values                                       |
+| 400 "Missing field(s)"                     | The body needs both `study_hours` and `attendance_percentage`                                              |
+| Postman shows an old response              | Click **Send** again                                                                                       |
+| Port 5000 already in use                   | Change the last line of `app.py` to `app.run(debug=True, use_reloader=False, port=5001)` and use port 5001 |
+| Code changes are not showing               | Stop the server with `Ctrl+C` and run `python app.py` again                                                |
+| Warnings after upgrading scikit-learn      | Run both training scripts again to rebuild the model files                                                 |
 
 ---
 
@@ -362,16 +367,16 @@ Check the `[DEBUG]` line above it:
 
 ## Glossary
 
-| Term | Meaning |
-|---|---|
-| **API** | A way for programs to talk to each other, here by sending data to a web address |
-| **Endpoint** | One specific address of an API, such as `/predict` |
-| **JSON** | A text format for data, like `{"study_hours": 7}` |
-| **Model** | A program that learned a pattern from data |
-| **Training** | Teaching the model using example data |
-| **Prediction** | The model's answer for new input |
-| **Virtual environment** | A private set of packages for one project |
-| **Status code** | A number saying whether a request worked (200) or failed (400, 404, 500) |
+| Term                    | Meaning                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| **API**                 | A way for programs to talk to each other, here by sending data to a web address |
+| **Endpoint**            | One specific address of an API, such as `/predict`                              |
+| **JSON**                | A text format for data, like `{"study_hours": 7}`                               |
+| **Model**               | A program that learned a pattern from data                                      |
+| **Training**            | Teaching the model using example data                                           |
+| **Prediction**          | The model's answer for new input                                                |
+| **Virtual environment** | A private set of packages for one project                                       |
+| **Status code**         | A number saying whether a request worked (200) or failed (400, 404, 500)        |
 
 ---
 
