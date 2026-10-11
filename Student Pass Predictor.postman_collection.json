@@ -1,0 +1,90 @@
+{
+  "info": {
+    "name": "Student Pass Predictor API",
+    "description": "Requests for the local Flask prediction API, including attendance validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Predict pass result",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"study_hours\": 6,\n  \"attendance_percentage\": 85\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/predict"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns a prediction and both inputs', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.study_hours).to.eql(6);",
+              "    pm.expect(body.attendance_percentage).to.eql(85);",
+              "    pm.expect(body.prediction).to.be.oneOf(['Pass', 'Fail']);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject attendance above 100",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"study_hours\": 6,\n  \"attendance_percentage\": 125\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/predict"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Rejects attendance outside 0 to 100', function () {",
+              "    pm.response.to.have.status(400);",
+              "    pm.expect(pm.response.json().error).to.include('attendance_percentage');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
