@@ -1,0 +1,20 @@
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+
+# IDE settings
+.vscode/
+
+# Generated model files
+models/*.joblib
+
+# Python test and cache files
+.pytest_cache/
