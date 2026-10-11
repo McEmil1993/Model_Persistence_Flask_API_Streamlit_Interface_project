@@ -1,0 +1,12 @@
+scikit-learn
+joblib
+Flask
+streamlit
+
+
+# How to run the Streamlit app:
+    # py app.py
+    # next is open another Terminal
+    # then copy paster ni   py -m streamlit run streamlit_app.py
+
+    # dont forget cd ML_Final_Exercise_Solution  kay naa syas sulod sa folder
