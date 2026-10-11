@@ -1,0 +1,6 @@
+flask
+streamlit
+scikit-learn
+joblib
+matplotlib
+pandas
