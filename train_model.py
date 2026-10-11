@@ -1,24 +1,50 @@
+import pandas as pd
 import joblib
-import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 
-# ---- Training data (replace with your own dataset) ----
-# study_hours, attendance_percentage -> passed (1) / failed (0)
-X_full = np.array([
-    [1, 50], [2, 55], [3, 60], [4, 70], [5, 75],
-    [6, 80], [7, 90], [8, 92], [2, 95], [9, 40],
-    [1, 85], [10, 98], [3, 45], [6, 65], [4, 50],
-])
-y = np.array([0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0])
+def train_and_save_model():
+    print("--- EXERCISE 1: MODEL PERSISTENCE ---")
+    
+    # 1. Load data
+    print("Loading dataset...")
+    data = pd.read_csv("student_data.csv")
+    
+    # 2. Separate features and target
+    X = data[["study_hours"]]
+    y = data["result"]
+    
+    # 3. Train the model
+    print("Training the Decision Tree model...")
+    model = DecisionTreeClassifier(random_state=42)
+    model.fit(X, y)
+    print("[OK] Model trained successfully.")
+    
+    # 4. Save the model
+    model_filename = "student_pass_model.joblib"
+    joblib.dump(model, model_filename)
+    print(f"[OK] Model saved as '{model_filename}'")
+    
+    # 5. Load the model back
+    print("\nLoading the saved model to verify...")
+    loaded_model = joblib.load(model_filename)
+    print("[OK] Model loaded successfully.")
+    
+    # 6. Make 3 predictions
+    test_hours = [2, 5, 8]
+    print("\n--- 3 Sample Predictions ---")
+    for hours in test_hours:
+        sample = pd.DataFrame({"study_hours": [hours]})
+        prediction = loaded_model.predict(sample)[0]
+        print(f"Study Hours: {hours} -> Predicted Result: {prediction}")
+        
+    # 7. Explanation
+    print("\n--- EXPLANATION ---")
+    print(
+        "The model does not need to be trained again because the .joblib file "
+        "stores the learned parameters (the tree structure). When we load it, "
+        "we are simply restoring those parameters to make predictions. "
+        "Retraining is only needed if we have new data or change the algorithm."
+    )
 
-# ---- Exercise 1: model using study hours only ----
-hours_model = LogisticRegression()
-hours_model.fit(X_full[:, [0]], y)
-joblib.dump(hours_model, "student_pass_model.joblib")
-print("Saved student_pass_model.joblib (study hours only)")
-
-# ---- Exercise 2: retrained model using hours + attendance ----
-full_model = LogisticRegression()
-full_model.fit(X_full, y)
-joblib.dump(full_model, "student_pass_model_attendance.joblib")
-print("Saved student_pass_model_attendance.joblib (hours + attendance)")
+if __name__ == "__main__":
+    train_and_save_model()
