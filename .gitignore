@@ -1,0 +1,16 @@
+
+# Virtual environments
+.venv/
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Streamlit configuration
+.streamlit/
+
+.git_backup/
+
+.git_backup/
+.git_old/
