@@ -1,0 +1,5 @@
+.venv/
+venv/ba
+__pycache__/
+*.pyc
+.streamlit/
