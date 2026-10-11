@@ -1,55 +1,47 @@
-"""Train and save the student pass/fail models.
+"""Exercise 1 - Model Persistence
 
-Exercise 1: saves a study-hours-only model as student_pass_model.joblib
-Exercise 2: saves a study-hours + attendance model as
-            student_pass_model_attendance.joblib
+Trains a simple Logistic Regression that predicts whether a student passes
+(1) or fails (0) from study hours only, saves it with joblib, then loads it
+back and makes three predictions WITHOUT retraining.
 """
 import joblib
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
-MODEL_HOURS_ONLY = "student_pass_model.joblib"
-MODEL_WITH_ATTENDANCE = "student_pass_model_attendance.joblib"
+MODEL_FILE = "student_pass_model.joblib"  # <-- new filename (Exercise 1)
 
 
-def make_dataset(n=400, seed=42):
-    """Create a reproducible synthetic dataset of student results."""
+def make_data(n=200, seed=42):
     rng = np.random.default_rng(seed)
     hours = rng.uniform(0, 10, n)
-    attendance = rng.uniform(40, 100, n)
-    # Passing depends on both, plus some noise.
-    score = 6.0 * hours + 0.35 * attendance + rng.normal(0, 6, n)
-    passed = (score >= 50).astype(int)
-    return pd.DataFrame(
-        {
-            "study_hours": hours.round(2),
-            "attendance_percentage": attendance.round(1),
-            "passed": passed,
-        }
-    )
+    # The more a student studies, the more likely they pass (with some noise).
+    prob = 1 / (1 + np.exp(-(hours - 5) * 1.2))
+    passed = (rng.random(n) < prob).astype(int)
+    return pd.DataFrame({"study_hours": hours, "passed": passed})
 
 
-def train_and_save(df, features, filename):
-    X = df[features]
+def train_and_save():
+    df = make_data()
+    X = df[["study_hours"]]
     y = df["passed"]
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-    model = make_pipeline(StandardScaler(), LogisticRegression())
-    model.fit(X_train, y_train)
-    acc = model.score(X_test, y_test)
-    joblib.dump(model, filename)  # Exercise 1: save with joblib.dump()
-    print(f"Saved {filename} (features={features}, test accuracy={acc:.2f})")
+    model = LogisticRegression()
+    model.fit(X, y)
+    joblib.dump(model, MODEL_FILE)  # save the trained model
+    print(f"Model trained and saved to {MODEL_FILE}")
+
+
+def load_and_predict():
+    model = joblib.load(MODEL_FILE)  # load - no training happens here
+    print("\nModel loaded from disk. Making predictions (no retraining):")
+    for hours in [1, 5, 9]:  # three different study-hour values
+        X_new = pd.DataFrame({"study_hours": [hours]})
+        pred = int(model.predict(X_new)[0])
+        prob = float(model.predict_proba(X_new)[0][1])
+        label = "PASS" if pred == 1 else "FAIL"
+        print(f"  {hours} study hours -> {label} (pass probability {prob:.2f})")
 
 
 if __name__ == "__main__":
-    data = make_dataset()
-    data.to_csv("students.csv", index=False)
-    train_and_save(data, ["study_hours"], MODEL_HOURS_ONLY)
-    train_and_save(
-        data, ["study_hours", "attendance_percentage"], MODEL_WITH_ATTENDANCE
-    )
+    train_and_save()
+    load_and_predict()

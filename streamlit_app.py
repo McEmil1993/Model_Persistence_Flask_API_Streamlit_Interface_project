@@ -1,105 +1,16 @@
-"""Exercise 3 - Streamlit interface for the student pass predictor (redesigned)."""
-import html
-
+"""Exercise 3 - Streamlit interface (pink pastel theme, uses student_pass_model.joblib)."""
 import altair as alt
 import joblib
+import numpy as np
 import pandas as pd
 import streamlit as st
 
 MODEL_FILE = "student_pass_model.joblib"
 
-# Palette
-INK = "#14213D"
-PAPER = "#F7F8FC"
-HIGHLIGHT = "#FFD84D"
-PASS = "#1B8A5A"
-FAIL = "#D6404A"
-MUTED = "#5B6784"
-
-st.set_page_config(page_title="Study hours predictor", page_icon="📘", layout="centered")
-
-st.markdown(
-    f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:wght@400;600&display=swap');
-
-:root {{ --ink:{INK}; --paper:{PAPER}; --hl:{HIGHLIGHT}; --pass:{PASS}; --fail:{FAIL}; --muted:{MUTED}; }}
-
-.stApp {{
-    background-color: var(--paper);
-    background-image:
-        linear-gradient(rgba(20,33,61,.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(20,33,61,.045) 1px, transparent 1px);
-    background-size: 28px 28px;
-    color: var(--ink);
-    font-family: 'Source Sans 3', sans-serif;
-}}
-header[data-testid="stHeader"] {{ background: transparent; }}
-.block-container {{ max-width: 720px; padding-top: 2.5rem; padding-bottom: 4rem; }}
-
-h1, h2, h3, .slip-title {{ font-family: 'Bricolage Grotesque', sans-serif !important; color: var(--ink) !important; letter-spacing: -0.02em; }}
-
-.hero h1 {{ font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 800; line-height: 1.02; margin: 0 0 .6rem 0; padding: 0; }}
-.hero mark {{ background: linear-gradient(transparent 55%, var(--hl) 55%); color: inherit; padding: 0 .1em; }}
-.hero p {{ font-size: 1.1rem; color: var(--muted); max-width: 46ch; margin: 0 0 1.6rem 0; line-height: 1.5; }}
-
-/* form */
-label, .stTextInput label p, .stNumberInput label p {{ color: var(--ink) !important; font-weight: 600 !important; }}
-.stTextInput input, .stNumberInput input {{
-    background: #fff !important; color: var(--ink) !important;
-    border: 2px solid var(--ink) !important; border-radius: 10px !important;
-    font-size: 1.05rem !important;
-}}
-.stTextInput input:focus, .stNumberInput input:focus {{ box-shadow: 4px 4px 0 var(--hl) !important; }}
-div[data-baseweb="input"], div[data-baseweb="base-input"] {{ background: transparent !important; border: none !important; }}
-.stNumberInput button {{ color: var(--ink) !important; background: #fff !important; border: 2px solid var(--ink) !important; }}
-
-.stButton > button {{
-    background: var(--ink); color: #fff; border: 2px solid var(--ink);
-    border-radius: 10px; padding: .65rem 1.6rem; font-weight: 600; font-size: 1.05rem;
-    box-shadow: 4px 4px 0 var(--hl); transition: transform .12s ease, box-shadow .12s ease;
-}}
-.stButton > button:hover {{ background: var(--ink); color: #fff; border-color: var(--ink); transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--hl); }}
-.stButton > button:focus-visible {{ outline: 3px solid var(--hl); outline-offset: 2px; }}
-
-/* result slip */
-.slip {{
-    background: #fff; border: 2px solid var(--ink); border-radius: 16px;
-    padding: 1.6rem 1.8rem; margin: 1.6rem 0 1.2rem 0;
-    box-shadow: 8px 8px 0 var(--ink);
-    display: flex; gap: 1.6rem; align-items: center; flex-wrap: wrap;
-}}
-.ring {{
-    --p: 0; --c: var(--pass);
-    width: 132px; height: 132px; border-radius: 50%; flex: none;
-    background: conic-gradient(var(--c) calc(var(--p) * 1%), #E4E8F2 0);
-    display: grid; place-items: center;
-}}
-.ring-inner {{
-    width: 98px; height: 98px; border-radius: 50%; background: #fff;
-    display: grid; place-items: center; text-align: center;
-    font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 1.9rem; color: var(--ink);
-    line-height: 1;
-}}
-.ring-inner small {{ display: block; font-family: 'Source Sans 3', sans-serif; font-weight: 400; font-size: .72rem; color: var(--muted); margin-top: .25rem; }}
-.slip-body {{ flex: 1; min-width: 220px; }}
-.slip-name {{ font-size: .95rem; color: var(--muted); margin: 0 0 .15rem 0; }}
-.slip-title {{ font-size: 2rem; font-weight: 800; margin: 0 0 .4rem 0; line-height: 1.05; }}
-.slip-title.pass {{ color: var(--pass) !important; }}
-.slip-title.fail {{ color: var(--fail) !important; }}
-.slip-text {{ margin: 0; color: var(--ink); line-height: 1.5; }}
-
-/* explanation */
-.explain {{ border-left: 6px solid var(--hl); background: #fff; padding: .9rem 1.2rem; border-radius: 0 10px 10px 0; line-height: 1.55; }}
-.explain b {{ font-family: 'Bricolage Grotesque', sans-serif; }}
-
-h3 {{ font-size: 1.35rem !important; font-weight: 700 !important; margin-top: 1.8rem !important; }}
-
-@media (prefers-reduced-motion: reduce) {{ .stButton > button {{ transition: none; }} }}
-</style>
-""",
-    unsafe_allow_html=True,
-)
+PINK = "#ff5fa2"
+SOFT_PINK = "#ffd6e8"
+LAVENDER = "#c9b6ff"
+PLUM = "#5b2a48"
 
 
 @st.cache_resource
@@ -107,116 +18,240 @@ def load_model():
     return joblib.load(MODEL_FILE)
 
 
-model = load_model()
+st.set_page_config(page_title="Student Pass Predictor", page_icon="🌸", layout="centered")
 
+# ---------- Custom styling ----------
 st.markdown(
-    """
-<div class="hero">
-  <h1>Will they <mark>pass</mark>?</h1>
-  <p>Enter a student's name and daily study hours. The model gives a pass or fail prediction and shows how sure it is.</p>
-</div>
-""",
+    f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+    html, body, [class*="css"], .stApp {{
+        font-family: 'Poppins', sans-serif;
+        color: {PLUM};
+    }}
+    .stApp {{
+        background: linear-gradient(160deg, #fff5f9 0%, #ffe9f3 45%, #f1e8ff 100%);
+    }}
+    header[data-testid="stHeader"] {{ background: transparent; }}
+    .block-container {{ padding-top: 2.5rem; max-width: 720px; }}
+
+    .hero {{
+        text-align: center;
+        padding: 1.6rem 1rem 1.2rem 1rem;
+    }}
+    .hero h1 {{
+        font-family: 'Playfair Display', serif;
+        font-size: 2.6rem;
+        margin: 0;
+        background: linear-gradient(90deg, {PINK}, #b983ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }}
+    .hero p {{ color: #9a5a7d; margin-top: .4rem; font-weight: 300; }}
+
+    .card {{
+        background: rgba(255,255,255,.75);
+        border: 1.5px solid {SOFT_PINK};
+        border-radius: 22px;
+        padding: 1.4rem 1.6rem;
+        box-shadow: 0 10px 30px rgba(255, 95, 162, .12);
+        margin-bottom: 1.2rem;
+    }}
+    .card h3 {{
+        font-family: 'Playfair Display', serif;
+        margin-top: 0;
+        color: {PLUM};
+    }}
+
+    .result {{
+        text-align: center;
+        border-radius: 24px;
+        padding: 1.6rem 1rem;
+        margin: 1rem 0 1.2rem 0;
+        box-shadow: 0 10px 30px rgba(185, 131, 255, .18);
+    }}
+    .result.pass {{ background: linear-gradient(135deg, #ffe0f0, #e9dcff); border: 2px solid {PINK}; }}
+    .result.fail {{ background: linear-gradient(135deg, #fff0e6, #ffe0ea); border: 2px solid #ff9db8; }}
+    .result .big {{ font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; }}
+    .result .sub {{ font-weight: 300; color: #9a5a7d; margin-top: .3rem; }}
+
+    .pill {{
+        display: inline-block;
+        background: {SOFT_PINK};
+        color: {PLUM};
+        padding: .25rem .9rem;
+        border-radius: 999px;
+        font-size: .85rem;
+        margin-top: .6rem;
+    }}
+
+    /* Inputs */
+    .stTextInput input, .stNumberInput input {{
+        border-radius: 14px !important;
+        border: 1.5px solid {SOFT_PINK} !important;
+        background: #fffafc !important;
+    }}
+    .stTextInput input:focus, .stNumberInput input:focus {{
+        border-color: {PINK} !important;
+        box-shadow: 0 0 0 3px rgba(255,95,162,.18) !important;
+    }}
+    label p {{ font-weight: 500 !important; color: {PLUM} !important; }}
+
+    /* Button */
+    .stButton > button {{
+        width: 100%;
+        border: none;
+        border-radius: 999px;
+        padding: .75rem 1rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: white;
+        background: linear-gradient(90deg, {PINK}, #b983ff);
+        box-shadow: 0 8px 20px rgba(255,95,162,.35);
+        transition: transform .15s ease, box-shadow .15s ease;
+    }}
+    .stButton > button:hover {{
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgba(255,95,162,.45);
+        color: white;
+    }}
+    .stButton > button:active {{ transform: translateY(0); }}
+
+    .footer {{ text-align:center; color:#b98aa5; font-size:.8rem; margin:2rem 0 .5rem 0; }}
+    </style>
+    """,
     unsafe_allow_html=True,
 )
 
-col1, col2 = st.columns([3, 2])
-with col1:
-    name = st.text_input("Student name", placeholder="Maria Santos")
-with col2:
-    hours = st.number_input(
-        "Study hours per day", min_value=0.0, max_value=24.0, value=3.0, step=0.5
-    )
+model = load_model()
 
-predict = st.button("Predict result")
+# ---------- Header ----------
+st.markdown(
+    """
+    <div class="hero">
+        <h1>🌸 Student Pass Predictor</h1>
+        <p>✨ Tell me how much you study and I'll predict your result ✨</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-if predict:
+# ---------- Input card ----------
+st.markdown('<div class="card"><h3>💌 Student details</h3>', unsafe_allow_html=True)
+name = st.text_input("Student name", placeholder="e.g. Maria Santos")
+hours = st.number_input(
+    "Study hours per day 📚", min_value=0.0, max_value=24.0, value=5.0, step=0.5
+)
+predict_clicked = st.button("✨ Predict my result")
+st.markdown("</div>", unsafe_allow_html=True)
+
+# ---------- Prediction ----------
+if predict_clicked:
     if not name.strip():
-        st.warning("Enter the student's name to see a result.")
+        st.warning("Please enter the student's name 💕")
     else:
         X = pd.DataFrame({"study_hours": [hours]})
-        label = int(model.predict(X)[0])
+        pred = int(model.predict(X)[0])
         prob = float(model.predict_proba(X)[0][1])
-        shown = prob if label == 1 else 1 - prob  # confidence in the predicted class
-        safe_name = html.escape(name.strip())
-        cls = "pass" if label == 1 else "fail"
-        verdict = "Likely to pass" if label == 1 else "Likely to fail"
-        color = "var(--pass)" if label == 1 else "var(--fail)"
 
+        # Result message
+        if pred == 1:
+            st.markdown(
+                f"""
+                <div class="result pass">
+                    <div class="big">🎉 Yay, {name}!</div>
+                    <div class="sub">You're predicted to <b>PASS</b></div>
+                    <span class="pill">Pass probability: {prob:.0%}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.balloons()
+        else:
+            st.markdown(
+                f"""
+                <div class="result fail">
+                    <div class="big">🌷 Keep going, {name}!</div>
+                    <div class="sub">You're predicted to <b>FAIL</b> for now. A little more study can change this.</div>
+                    <span class="pill">Pass probability: {prob:.0%}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        # Explanation
         st.markdown(
             f"""
-<div class="slip">
-  <div class="ring" style="--p:{shown*100:.0f}; --c:{color};">
-    <div class="ring-inner"><div>{shown:.0%}<small>confidence</small></div></div>
-  </div>
-  <div class="slip-body">
-    <p class="slip-name">{safe_name} &middot; {hours:g} study hours a day</p>
-    <p class="slip-title {cls}">{verdict}</p>
-    <p class="slip-text">The model puts the chance of passing at {prob:.0%}.</p>
-  </div>
-</div>
-""",
+            <div class="card">
+                <h3>💡 How was this prediction generated?</h3>
+                A Logistic Regression model was trained <b>once</b> on past student
+                data and saved to disk. This app loads that saved model and gives it
+                the study hours you entered (<b>{hours}</b>). The model turns the
+                hours into a pass probability. If the probability is
+                <b>50% or higher</b>, the predicted class is <b>PASS</b>, otherwise
+                <b>FAIL</b>. Nothing is retrained when you click the button.
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("### How this prediction was made")
-        st.markdown(
-            """
-<div class="explain">
-The app loads a logistic regression model that was trained earlier and saved with
-<b>joblib</b>. It scales the study hours and turns them into a pass probability.
-At 50% or higher the class is <b>Pass (1)</b>, otherwise <b>Fail (0)</b>.
-Clicking the button does not retrain the model.
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-        st.markdown("### Study hours and predicted class")
-        grid = pd.DataFrame({"study_hours": [i / 4 for i in range(0, 49)]})
+        # Bonus chart: study hours vs predicted class
+        st.markdown('<div class="card"><h3>📈 Study hours vs. predicted class</h3>', unsafe_allow_html=True)
+        grid = pd.DataFrame({"study_hours": np.linspace(0, 10, 100)})
         grid["pass_probability"] = model.predict_proba(grid)[:, 1]
-        point = pd.DataFrame({"study_hours": [hours], "pass_probability": [prob]})
-        line_color = PASS if label == 1 else FAIL
 
-        curve = (
-            alt.Chart(grid)
-            .mark_line(color=INK, strokeWidth=3)
+        zones = pd.DataFrame(
+            {
+                "start": [0, 0.5],
+                "end": [0.5, 1],
+                "zone": ["FAIL zone", "PASS zone"],
+            }
+        )
+        bands = (
+            alt.Chart(zones)
+            .mark_rect(opacity=0.35)
             .encode(
-                x=alt.X("study_hours:Q", title="Study hours per day"),
-                y=alt.Y(
-                    "pass_probability:Q",
-                    title="Chance of passing",
-                    scale=alt.Scale(domain=[0, 1]),
-                    axis=alt.Axis(format="%"),
+                y=alt.Y("start:Q", scale=alt.Scale(domain=[0, 1])),
+                y2="end:Q",
+                color=alt.Color(
+                    "zone:N",
+                    scale=alt.Scale(domain=["FAIL zone", "PASS zone"], range=["#ffc2d6", LAVENDER]),
+                    legend=alt.Legend(title=None, orient="bottom"),
                 ),
             )
         )
-        threshold = (
-            alt.Chart(pd.DataFrame({"y": [0.5]}))
-            .mark_rule(color=MUTED, strokeDash=[6, 4])
-            .encode(y="y:Q")
-        )
-        dot = (
-            alt.Chart(point)
-            .mark_point(
-                filled=True, size=260, color=line_color, stroke=INK, strokeWidth=2
+        line = (
+            alt.Chart(grid)
+            .mark_line(color=PINK, strokeWidth=3)
+            .encode(
+                x=alt.X("study_hours:Q", title="Study hours per day"),
+                y=alt.Y("pass_probability:Q", title="Pass probability", scale=alt.Scale(domain=[0, 1])),
             )
-            .encode(x="study_hours:Q", y="pass_probability:Q")
+        )
+        me = pd.DataFrame({"study_hours": [hours], "pass_probability": [prob], "who": [name]})
+        point = (
+            alt.Chart(me)
+            .mark_point(filled=True, size=220, color=PLUM, stroke="white", strokeWidth=2)
+            .encode(
+                x="study_hours:Q",
+                y="pass_probability:Q",
+                tooltip=["who", "study_hours", alt.Tooltip("pass_probability:Q", format=".0%")],
+            )
         )
         chart = (
-            (curve + threshold + dot)
+            (bands + line + point)
             .properties(height=300)
-            .configure(background="#FFFFFF")
-            .configure_view(stroke=INK, strokeWidth=2)
-            .configure_axis(
-                labelColor=INK,
-                titleColor=INK,
-                gridColor="#E4E8F2",
-                labelFontSize=12,
-                titleFontSize=13,
-            )
+            .configure_view(strokeWidth=0)
+            .configure(background="transparent")
+            .configure_axis(labelColor=PLUM, titleColor=PLUM, gridColor="#ffd6e8")
+            .configure_legend(labelColor=PLUM)
         )
         st.altair_chart(chart, width="stretch")
         st.caption(
-            "The dashed line is the 50% pass threshold. The dot marks "
-            f"{safe_name}'s study hours."
+            f"The dark dot is {name}: {hours} study hours → "
+            f"{'PASS (1)' if pred else 'FAIL (0)'}."
         )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown('<div class="footer">Made with 💖 using Streamlit &amp; scikit-learn</div>', unsafe_allow_html=True)
