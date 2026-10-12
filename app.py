@@ -1,10 +1,10 @@
-
 from flask import Flask, request, jsonify
 import joblib
+import math
 
 app = Flask(__name__)
 
-# Load the saved machine learning model
+# Load the saved model
 model = joblib.load("student_pass_model.joblib")
 
 
@@ -19,9 +19,9 @@ def home():
 def predict():
     data = request.get_json(silent=True)
 
-    if not data:
+    if not isinstance(data, dict):
         return jsonify({
-            "error": "Please provide JSON data"
+            "error": "Please provide valid JSON data"
         }), 400
 
     if "study_hours" not in data or "attendance_percentage" not in data:
@@ -37,18 +37,18 @@ def predict():
             "error": "Both values must be numbers"
         }), 400
 
-    if study_hours < 0:
+    if not math.isfinite(study_hours) or study_hours < 0:
         return jsonify({
-            "error": "study_hours cannot be negative"
+            "error": "study_hours must be a finite, non-negative number"
         }), 400
 
-    if not 0 <= attendance <= 100:
+    if not math.isfinite(attendance) or not 0 <= attendance <= 100:
         return jsonify({
             "error": "attendance_percentage must be between 0 and 100"
         }), 400
 
-    # The current model uses study hours only
-    prediction = model.predict([[study_hours]])[0]
+    # The trained model uses study hours only
+    prediction = int(model.predict([[study_hours]])[0])
     result = "PASS" if prediction == 1 else "FAIL"
 
     return jsonify({

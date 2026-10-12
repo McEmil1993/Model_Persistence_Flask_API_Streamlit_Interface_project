@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Load saved model
+# Load the saved model
 model = joblib.load("student_pass_model.joblib")
 
 # Header
@@ -17,8 +17,8 @@ st.title("🎓 Student Performance Prediction")
 st.caption("Machine Learning | Model Persistence | Streamlit")
 
 st.write(
-    "Enter the student's information below to predict "
-    "the result based on study hours."
+    "Enter the student's name and daily study hours "
+    "to predict the result."
 )
 
 st.divider()
@@ -44,15 +44,8 @@ if st.button("🔍 Predict Student Result", use_container_width=True):
         st.warning("Please enter the student's name.")
 
     else:
+        # Predict using the trained model
         prediction = int(model.predict([[study_hours]])[0])
-
-        probabilities = model.predict_proba([[study_hours]])[0]
-        classes = list(model.classes_)
-
-        # Find probability of PASS (class 1)
-        pass_index = classes.index(1)
-        pass_probability = probabilities[pass_index] * 100
-
         result = "PASS" if prediction == 1 else "FAIL"
 
         st.divider()
@@ -68,54 +61,92 @@ if st.button("🔍 Predict Student Result", use_container_width=True):
 
         with col2:
             st.metric(
-                "Estimated Passing Probability",
-                f"{pass_probability:.1f}%"
+                "Predicted Result",
+                result
             )
 
         st.write(f"**Student Name:** {student_name.strip()}")
 
         if prediction == 1:
-            st.success(f"🎉 Predicted Result: {result}")
+            st.success("🎉 Predicted Result: PASS")
         else:
-            st.error(f"⚠️ Predicted Result: {result}")
+            st.error("⚠️ Predicted Result: FAIL")
 
-        st.progress(int(round(pass_probability)))
-
-        st.caption(
-            "The percentage represents the model's estimated "
-            "probability of PASS, not the student's actual grade "
-            "or a guarantee of passing."
-        )
-
+        # Prediction explanation
         st.subheader("💡 Prediction Explanation")
 
         st.write(
             f"The model received {study_hours:g} study hours "
-            f"as input and predicted **{result}**. "
-            f"The estimated probability of PASS is "
-            f"{pass_probability:.1f}%. "
-            "This prediction uses the previously trained "
-            "Decision Tree model."
+            f"per day and predicted **{result}**."
         )
 
-        st.subheader("📈 Study Hours Overview")
-
-        fig, ax = plt.subplots(figsize=(7, 4))
-
-        ax.bar(
-            ["Study Hours"],
-            [study_hours]
+        st.caption(
+            "Class 0 = FAIL; Class 1 = PASS. "
+            "This is a prediction, not a guarantee of actual academic results."
         )
 
-        ax.set_ylabel("Hours")
-        ax.set_title("Student's Study Hours")
-        ax.set_ylim(0, 8)
+        # Bonus graph: Study Hours vs. Predicted Class
+        st.subheader("📈 Study Hours vs. Predicted Class")
+
+        hours_range = list(range(9))
+
+        predicted_classes = [
+            int(model.predict([[hours]])[0])
+            for hours in hours_range
+        ]
+
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+
+        ax.plot(
+            hours_range,
+            predicted_classes,
+            marker="o",
+            linewidth=2,
+            label="Predicted Result"
+        )
+
+        ax.scatter(
+            [study_hours],
+            [prediction],
+            s=140,
+            marker="*",
+            label=f"Selected: {study_hours:g} hours",
+            zorder=3
+        )
+
+        ax.set_title(
+            "Student Result Based on Study Hours",
+            fontsize=13,
+            pad=18
+        )
+
+        ax.set_xlabel("Study Hours per Day", labelpad=10)
+        ax.set_ylabel("Predicted Result", labelpad=10)
+
+        ax.set_xticks(range(9))
+        ax.set_yticks(
+            [0, 1],
+            labels=["FAIL", "PASS"]
+        )
+
+        ax.set_xlim(-0.3, 8.3)
+        ax.set_ylim(-0.2, 1.2)
+
+        ax.grid(
+            axis="y",
+            linestyle="--",
+            alpha=0.4
+        )
+
+        ax.legend(loc="best")
+        fig.tight_layout(pad=2)
 
         st.pyplot(fig)
+        plt.close(fig)
 
         st.info(
-            "Note: This model uses study hours only. "
-            "Attendance percentage does not affect this prediction."
+            "The prediction is determined by the student's study hours. "
+            "Attendance percentage is checked separately to ensure that the value is within the valid range."
         )
 
 st.divider()
