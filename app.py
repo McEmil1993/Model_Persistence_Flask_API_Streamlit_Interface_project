@@ -1,86 +1,73 @@
-
-import streamlit as st
+"""
+Exercise 2 — Flask API
+Run: python app.py
+Test POST http://127.0.0.1:5000/predict with JSON:
+{"study_hours": 5, "attendance_percentage": 90}
+"""
+from pathlib import Path
+from flask import Flask, jsonify, request
 import joblib
-import pandas as pd
-import matplotlib.pyplot as plt
 
+app = Flask(__name__)
+MODEL_PATH = Path(__file__).with_name("student_pass_model.joblib")
 
-model = joblib.load("student_pass_model.joblib")
-
-st.title("Student Pass Prediction")
-st.write("Predict whether a student will pass based on study hours.")
-
-
-student_name = st.text_input("Enter Student Name")
-
-study_hours = st.number_input(
-    "Study Hours",
-    min_value=0.0,
-    max_value=24.0,
-    value=5.0,
-    step=0.5
-)
-
-if st.button("Predict Result"):
-    if not student_name.strip():
-        st.warning("Please enter the student's name.")
-    else:
-        prediction = model.predict([[study_hours]])[0]
-
-        st.subheader("Prediction Result")
-        st.write(f"Student Name: {student_name}")
-        st.write(f"Study Hours: {study_hours}")
-
-        if prediction == "Pass":
-            st.success(f"{student_name} is predicted to PASS!")
-            st.write(
-                "Explanation: Based on the training data, "
-                "the model classifies these study hours as Pass."
-            )
-        else:
-            st.error(f"{student_name} is predicted to FAIL.")
-            st.write(
-                "Explanation: Based on the training data, "
-                "the model classifies these study hours as Fail."
-            )
-
-        st.subheader("Study Hours and Prediction Chart")
-
-        chart_data = pd.DataFrame({
-            "Study Hours": [1, 2, 3, 4, 5, 6, 7, 8],
-            "Actual Result": [
-                "Fail", "Fail", "Fail", "Pass",
-                "Pass", "Pass", "Pass", "Pass"
-            ]
-        })
-
-        chart_data["Result Number"] = chart_data[
-            "Actual Result"
-        ].map({"Fail": 0, "Pass": 1})
-
-        fig, ax = plt.subplots()
-
-        ax.plot(
-            chart_data["Study Hours"],
-            chart_data["Result Number"],
-            marker="o",
-            label="Training Data"
+def load_model():
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(
+            "Model file not found. Run 'python train_model.py' first."
         )
+    return joblib.load(MODEL_PATH)
 
-        ax.scatter(
-            [study_hours],
-            [1 if prediction == "Pass" else 0],
-            marker="*",
-            s=200,
-            label="Student Prediction"
-        )
+@app.get("/")
+def home():
+    return jsonify({
+        "message": "Student Pass Prediction API",
+        "endpoint": "POST /predict",
+        "required_json": {
+            "study_hours": "number",
+            "attendance_percentage": "number from 0 to 100"
+        }
+    })
 
-        ax.set_xlabel("Study Hours")
-        ax.set_ylabel("Result")
-        ax.set_yticks([0, 1])
-        ax.set_yticklabels(["Fail", "Pass"])
-        ax.set_title("Student Pass Prediction")
-        ax.legend()
-        ax.grid(True)
+@app.post("/predict")
+def predict():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Request body must be valid JSON."}), 400
 
-        st.pyplot(fig)
+    if "study_hours" not in data or "attendance_percentage" not in data:
+        return jsonify({
+            "error": "Both study_hours and attendance_percentage are required."
+        }), 400
+
+    try:
+        study_hours = float(data["study_hours"])
+        attendance = float(data["attendance_percentage"])
+    except (TypeError, ValueError):
+        return jsonify({"error": "Both inputs must be numbers."}), 400
+
+    if study_hours < 0:
+        return jsonify({"error": "study_hours must be 0 or greater."}), 400
+    if not 0 <= attendance <= 100:
+        return jsonify({
+            "error": "attendance_percentage must be between 0 and 100."
+        }), 400
+
+    try:
+        model = load_model()
+        prediction = int(model.predict([[study_hours]])[0])
+    except FileNotFoundError as error:
+        return jsonify({"error": str(error)}), 500
+
+    # Attendance is returned and validated, but does not affect the prediction
+    # because the provided model is trained using study_hours only.
+    return jsonify({
+        "study_hours": study_hours,
+        "attendance_percentage": attendance,
+        "prediction": prediction,
+        "predicted_class": "Pass" if prediction == 1 else "Fail",
+        "note": "Prediction currently uses study_hours only; attendance is not a model feature."
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
