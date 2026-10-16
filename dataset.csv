@@ -1,0 +1,14 @@
+﻿# Sample training data for the student performance exercise.
+# The model uses only study_hours; attendance is not part of training.
+study_hours,passed
+0,0
+1,0
+2,0
+3,0
+4,0
+5,1
+6,1
+7,1
+8,1
+9,1
+10,1
