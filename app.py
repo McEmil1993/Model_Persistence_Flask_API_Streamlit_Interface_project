@@ -1,52 +1,52 @@
-"""Exercise 2 - Flask API with study_hours and attendance_percentage."""
+from flask import Flask, request, jsonify
 import joblib
-import pandas as pd
-from flask import Flask, jsonify, request
+import math
 
 app = Flask(__name__)
-model = joblib.load("model_v2.pkl")  # retrained with both features
 
-
-@app.route("/")
-def home():
-    return jsonify({"message": "Student pass prediction API. POST JSON to /predict."})
+# Load the saved model
+model = joblib.load("student_pass_model.joblib")
 
 
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json(silent=True)
-    if not data:
-        return jsonify({"error": "Send a JSON body."}), 400
 
-    if "study_hours" not in data or "attendance_percentage" not in data:
-        return jsonify({"error": "study_hours and attendance_percentage are required."}), 400
+    if not isinstance(data, dict):
+        return jsonify({"error": "Valid JSON is required"}), 400
 
     try:
-        study_hours = float(data["study_hours"])
+        hours = float(data["study_hours"])
         attendance = float(data["attendance_percentage"])
-    except (TypeError, ValueError):
-        return jsonify({"error": "Both values must be numbers."}), 400
+    except (KeyError, TypeError, ValueError):
+        return jsonify({
+            "error": "Provide numeric study_hours and attendance_percentage"
+        }), 400
 
-    if study_hours < 0:
-        return jsonify({"error": "study_hours must be 0 or greater."}), 400
-    if not 0 <= attendance <= 100:
-        return jsonify({"error": "attendance_percentage must be between 0 and 100."}), 400
+    if not math.isfinite(hours) or hours < 0:
+        return jsonify({
+            "error": "Study hours must be a non-negative number"
+        }), 400
 
-    X = pd.DataFrame(
-        [[study_hours, attendance]],
-        columns=["study_hours", "attendance_percentage"],
-    )
-    pred = int(model.predict(X)[0])
-    prob = float(model.predict_proba(X)[0][1])
+    if not math.isfinite(attendance) or not 0 <= attendance <= 100:
+        return jsonify({
+            "error": "Attendance must be between 0 and 100"
+        }), 400
+
+    # The current model uses study hours only
+    prediction = int(model.predict([[hours]])[0])
+    result = "Pass" if prediction == 1 else "Fail"
 
     return jsonify({
-        "study_hours": study_hours,
+        "study_hours": hours,
         "attendance_percentage": attendance,
-        "prediction": "Pass" if pred == 1 else "Fail",
-        "predicted_class": pred,
-        "pass_probability": round(prob, 3),
+        "prediction": result
     })
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=False
+    )
